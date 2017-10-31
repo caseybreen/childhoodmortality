@@ -12,5 +12,4 @@ LazyData: true
 Imports: 
         plyr,
         matrixStats
-        
-        
+RoxygenNote: 6.0.1
