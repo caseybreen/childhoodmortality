@@ -15,9 +15,9 @@
 #' @param rate_type This character string gives the type of mortality rate to be calculated (neonatal, postneonatal, infant, child, under-five)
 #'
 #' @export
-childhoodmortality <- function(data, grouping, rate_type="U5MR") {
+childhoodmortality <- function(data, grouping, rate_type="underfive") {
 
-
+  if (!rate_type %in% c("neonatal", "postneonatal", "infant", "child", "underfive") stop("Please specify a valid mortality rate type. Valid options are neonatal, postneonatal, infant, child, underfive")
 
   #generate master table
   mortality_rates <- data.frame(a =c(), rate =c(), IFM = c())
@@ -118,9 +118,9 @@ childhoodmortality <- function(data, grouping, rate_type="U5MR") {
       } else cdpw <- data.frame(cdpw=cdpw_sample$cdpw_sample)
 
 
-      U5MR_rate <- calculate_component_survival_probabilities(cdpw)
+      mortality_type_rate <- calculate_component_survival_probabilities(cdpw)
 
-      jack <- append(jack, U5MR_rate)
+      jack <- append(jack, mortality_type_rate)
 
     }
 
@@ -167,7 +167,7 @@ childhoodmortality <- function(data, grouping, rate_type="U5MR") {
   } else if (rate_type == "child") {
     disaggregate_mortality <- plyr::rename(disaggregate_mortality, c(mortality_type_rate = "child"))
   }
-  else disaggregate_mortality <- plyr::rename(disaggregate_mortality, c(mortality_type_rate = "U5MR"))
+  else disaggregate_mortality <- plyr::rename(disaggregate_mortality, c(mortality_type_rate = "underfive"))
 
   return(disaggregate_mortality)
 }
