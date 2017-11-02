@@ -17,7 +17,7 @@
 #' @export
 childhoodmortality <- function(data, grouping, rate_type="underfive") {
 
-  if (!rate_type %in% c("neonatal", "postneonatal", "infant", "child", "underfive") stop("Please specify a valid mortality rate type. Valid options are neonatal, postneonatal, infant, child, underfive")
+  if (!rate_type %in% c("neonatal", "postneonatal", "infant", "child", "underfive")) stop("Please specify a valid mortality rate type. Valid options are neonatal, postneonatal, infant, child, underfive")
 
   #generate master table
   mortality_rates <- data.frame(a =c(), rate =c(), IFM = c())
