@@ -13,13 +13,8 @@
 #' @param grouping This character string gives the variable name of the variable denoting groups.
 #'
 #' @export
-childhoodmortality <- function(data, grouping, rate_type) {
+childhoodmortality <- function(data, grouping, rate_type="U5MR") {
 
-
-  # Set Default Rate Type
-  if(missing(rate_type)) {
-    rate_type <- "U5MR"
-  }
 
 
   #generate master table
@@ -57,11 +52,15 @@ childhoodmortality <- function(data, grouping, rate_type) {
     # Calculates under-Five mortality rate from component death probablities
 
     # Estimates based on rate type
-    if(rate_type == "infant") {
-      cdpw <- data.frame(cdpw=cdpw_sample$cdpw_sample[1:4])
-    } else if (rate_type == "neonatal") {
+    if(rate_type == "neonatal") {
       cdpw <- data.frame(cdpw=cdpw_sample$cdpw_sample[1:1])
-    } elsecdpw <- data.frame(cdpw=cdpw_sample$cdpw_sample)
+    } else if (rate_type == "postneonatal") {
+      cdpw <- data.frame(cdpw=cdpw_sample$cdpw_sample[2:4])
+    } else if (rate_type == "infant") {
+      cdpw <- data.frame(cdpw=cdpw_sample$cdpw_sample[1:4])
+    } else if (rate_type == "child") {
+      cdpw <- data.frame(cdpw=cdpw_sample$cdpw_sample[5:8])
+    } else cdpw <- data.frame(cdpw=cdpw_sample$cdpw_sample)
 
 
     # Call Utility Functions
@@ -108,8 +107,12 @@ childhoodmortality <- function(data, grouping, rate_type) {
       # Estimates based on rate type
       if(rate_type == "neonatal") {
         cdpw <- data.frame(cdpw=cdpw_sample$cdpw_sample[1:1])
+      } else if (rate_type == "postneonatal") {
+        cdpw <- data.frame(cdpw=cdpw_sample$cdpw_sample[2:4])
       } else if (rate_type == "infant") {
         cdpw <- data.frame(cdpw=cdpw_sample$cdpw_sample[1:4])
+      } else if (rate_type == "child") {
+        cdpw <- data.frame(cdpw=cdpw_sample$cdpw_sample[5:8])
       } else cdpw <- data.frame(cdpw=cdpw_sample$cdpw_sample)
 
 
@@ -155,9 +158,14 @@ childhoodmortality <- function(data, grouping, rate_type) {
 
   if(rate_type == "neonatal") {
     disaggregate_mortality <- plyr::rename(disaggregate_mortality, c(mortality_type_rate = "neonatal"))
+  } else if (rate_type == "postneonatal") {
+    disaggregate_mortality <- plyr::rename(disaggregate_mortality, c(mortality_type_rate = "postneonatal"))
   } else if (rate_type == "infant") {
     disaggregate_mortality <- plyr::rename(disaggregate_mortality, c(mortality_type_rate = "infant"))
-  } else disaggregate_mortality <- plyr::rename(disaggregate_mortality, c(mortality_type_rate = "U5MR"))
+  } else if (rate_type == "child") {
+    disaggregate_mortality <- plyr::rename(disaggregate_mortality, c(mortality_type_rate = "child"))
+  }
+  else disaggregate_mortality <- plyr::rename(disaggregate_mortality, c(mortality_type_rate = "U5MR"))
 
 
 
