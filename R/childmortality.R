@@ -12,6 +12,8 @@
 #'
 #' @param grouping This character string gives the variable name of the variable denoting groups.
 #'
+#' @param rate_type This character string gives the type of mortality rate to be calculated (neonatal, postneonatal, infant, child, under-five)
+#'
 #' @export
 childhoodmortality <- function(data, grouping, rate_type="U5MR") {
 
