@@ -167,8 +167,6 @@ childhoodmortality <- function(data, grouping, rate_type="U5MR") {
   }
   else disaggregate_mortality <- plyr::rename(disaggregate_mortality, c(mortality_type_rate = "U5MR"))
 
-
-
   return(disaggregate_mortality)
 }
 
