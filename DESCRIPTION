@@ -1,12 +1,13 @@
 Package: childhoodmortality
 Type: Package
-Title: What the Package Does (Title Case)
+Title: Compute Childhood Mortality Rates
 Version: 0.1.0
-Author: Who wrote it
-Maintainer: The package maintainer <yourself@somewhere.net>
-Description: More about what it does (maybe more than one line)
+Author: Casey Breen
+Depends: R(>= 2.10.0)
+Maintainer: Casey Breen <cbreen@umn.edu>
+Description: This package calculates childhood (neonatal, postneonatal, infant, child, and under-five) mortality rates using DHS microdata. 
     Use four spaces when indenting paragraphs within the Description.
-License: What license is it under?
+License: GPL-3
 Encoding: UTF-8
 LazyData: true
 Imports: 
