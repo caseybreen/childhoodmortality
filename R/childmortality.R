@@ -14,6 +14,14 @@
 #'
 #' @param rate_type This character string gives the type of mortality rate to be calculated (neonatal, postneonatal, infant, child, under-five)
 #'
+#' @examples
+#' data("model_dhs")
+#' underfive_mortality_rates <- childhoodmortality(
+#'  model_ipums_dhs_dataset,
+#'  grouping ="WEALTHQ",
+#'  rate_type = "underfive"
+#' )
+#'
 #' @export
 childhoodmortality <- function(data, grouping, rate_type="underfive") {
 
@@ -22,7 +30,7 @@ childhoodmortality <- function(data, grouping, rate_type="underfive") {
   #generate master table
   mortality_rates <- data.frame(a =c(), rate =c(), IFM = c())
 
-  data<- data[, c("YEAR", "GEOALT_NG2008_2013", "PSU", "PERWEIGHT", "KIDDOBCMC", "INTDATECMC", "KIDAGEDIEDIMP")]
+  data<- data[, c("YEAR", grouping, "PSU", "PERWEIGHT", "KIDDOBCMC", "INTDATECMC", "KIDAGEDIEDIMP")]
 
   age_segments <- list(c(0, 1),
                        c(1, 2),

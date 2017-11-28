@@ -11,7 +11,6 @@ Description: This package calculates childhood (neonatal, postneonatal, infant, 
     with actual cohort mortality experience into more common age segments. Standard errors for mortality estimates are computed using
     the jackknife repeated replication method outlined in Appendix C of the DHS final reports (Rutstein 2006). This methodology controls for
     sample design. 
-    
 License: GPL-3
 Encoding: UTF-8
 LazyData: true
