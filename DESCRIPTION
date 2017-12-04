@@ -1,15 +1,15 @@
 Package: childhoodmortality
 Type: Package
-Title: Tool for Calculating Childhood Mortality Rates 
+Title: Calculating Childhood Mortality Rates
 Version: 0.1.0
 Author: Casey Breen
 Depends: R(>= 2.10.0)
 Maintainer: Casey Breen <cbreen@umn.edu>
 Description: Tools to calculate childhood (neonatal, postneonatal, infant, child, and under-five) mortality rates using DHS microdata.
-    The ChildhoodMortality package was developed in accordance to the methodology outlined in the “DHS Guide to Statistics.” 
+    The ChildhoodMortality package was developed in accordance to the methodology outlined in the "DHS Guide to Statistics."   
     Specifically, the package uses a synthetic cohort life table approach, combining mortality probabilities for age segments
     with actual cohort mortality experience into more common age segments. Standard errors for mortality estimates are computed using
-    the jackknife repeated replication method outlined in Appendix C of the DHS final reports (Rutstein 2006). This methodology controls for
+    the jackknife repeated replication method outlined in Appendix C of the DHS final reports (Rutstein 2006)<https://dhsprogram.com/pubs/pdf/DHSG1/Guide_to_DHS_Statistics_29Oct2012_DHSG1.pdf>. This methodology controls for
     sample design. 
 License: GPL-3
 Encoding: UTF-8
