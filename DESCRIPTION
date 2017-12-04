@@ -10,7 +10,7 @@ Description: Calculates childhood (neonatal, postneonatal, infant, child, and un
     <http://dhsprogram.com/pubs/pdf/DHSG1/Guide_to_DHS_Statistics_29Oct2012_DHSG1.pdf>) Specifically, the package uses a synthetic cohort 
     life table approach, combining mortality probabilities for age segments with actual cohort mortality experience into more common age 
     segments. Standard errors for mortality estimates are computed using the jackknife repeated replication method outlined in the "Estimates of Sampling Errors" 
-    appendix of DHS Final Reports (DHS 2004, <https://dhsprogram.com/pubs/pdf/FR175/19AppendixB.pdf>). This methodology controls for sample design. 
+    appendix of DHS Final Reports (DHS 2004, <http://dhsprogram.com/pubs/pdf/FR175/19AppendixB.pdf>). This methodology controls for sample design. 
 License: GPL-3
 Encoding: UTF-8
 LazyData: true
