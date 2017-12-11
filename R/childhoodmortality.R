@@ -96,12 +96,11 @@ childhoodmortality <- function(data, grouping, rate_type="underfive") {
   #Calculation of repeated replication of parent sample  ommiting obervations in "ith" PSU. Delete-one jackknife method used by DHS.
 
   SE_rates <- data.frame(group =c(), SE =c())
-
   #### update
   for (group in group_levels) {
     sub_sample <- data[which(data[[grouping]] == group),]
     #Generate Vector
-    jack <- c()
+    jack <- rep(NA, length(unique(PSU)))
 
     #Find unique PSUs and create replications
     PSU <- sub_sample$PSU
@@ -128,7 +127,7 @@ childhoodmortality <- function(data, grouping, rate_type="underfive") {
 
       mortality_type_rate <- calculate_component_survival_probabilities(cdpw)
 
-      jack <- append(jack, mortality_type_rate)
+      jack[i] <- mortality_type_rate
 
     }
 
