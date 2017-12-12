@@ -102,8 +102,8 @@ childhoodmortality <- function(data, grouping, rate_type="underfive") {
   for (group in group_levels) {
     sub_sample <- data[which(data[[grouping]] == group),]
     #Generate Vector
-    jack <- rep(NA, length(unique(PSU)))
     PSU <- sub_sample$PSU
+    jack <- rep(NA, length(unique(PSU)))
     #Find unique PSUs and create replications
     for (i in unique(PSU)) {
 
