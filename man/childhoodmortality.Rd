@@ -17,7 +17,7 @@ childhoodmortality(data, grouping, rate_type = "underfive")
 calculates childhood mortality & SE's
 }
 \examples{
-data("model_dhs")
+data("model_ipums_dhs_dataset")
 underfive_mortality_rates <- childhoodmortality(
  model_ipums_dhs_dataset,
  grouping ="WEALTHQ",
