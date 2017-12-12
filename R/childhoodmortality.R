@@ -29,11 +29,10 @@ childhoodmortality <- function(data, grouping, rate_type="underfive") {
 
   #generate master table
   group_levels <- unique(data[[grouping]])
-  a = rep(NA, length(unique(PSU)))
   rate =rep(NA, length(unique(PSU)))
   IFM = rep(NA, length(unique(PSU)))
 
-  mortality_rates <- cbind(a, rate, IFM)
+  mortality_rates <- cbind(rate, IFM)
 
   data<- data[, c("YEAR", grouping, "PSU", "PERWEIGHT", "KIDDOBCMC", "INTDATECMC", "KIDAGEDIEDIMP")]
 
