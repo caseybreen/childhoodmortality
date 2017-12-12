@@ -29,10 +29,10 @@ childhoodmortality <- function(data, grouping, rate_type="underfive") {
 
   #generate master table
   group_levels <- unique(data[[grouping]])
-  rate =rep(NA, length(unique(PSU)))
-  IFM = rep(NA, length(unique(PSU)))
+  group        <- rep(NA, length((group_levels)))
+  rate         <- rep(NA, length((group_levels)))
 
-  mortality_rates <- cbind(rate, IFM)
+  mortality_rates <- cbind(group, rate)
 
   data<- data[, c("YEAR", grouping, "PSU", "PERWEIGHT", "KIDDOBCMC", "INTDATECMC", "KIDAGEDIEDIMP")]
 
@@ -54,10 +54,9 @@ childhoodmortality <- function(data, grouping, rate_type="underfive") {
         paste0("age_", x[1], "_to_", x[2])
       }
     )
-
+  i <- 1
   for (group in group_levels) {
     sub_sample <- data[which(data[[grouping]] == group),]
-    i <- 1
     # Calculates Component death probabilities for each age interval
     cdpw_sample <- compute_for_all_age_segments(sub_sample, age_segments)
 
@@ -78,9 +77,9 @@ childhoodmortality <- function(data, grouping, rate_type="underfive") {
     # Call Utility Functions
     mortality_type_rate <- calculate_component_survival_probabilities(cdpw)
 
-    append <- data.frame(group, mortality_type_rate)
-    mortality_rates[i,] <- append
-
+    mortality_rates[i,1] <- group
+    mortality_rates[i,2] <- mortality_type_rate
+    i <- i + 1
 
   }
 
@@ -98,6 +97,12 @@ childhoodmortality <- function(data, grouping, rate_type="underfive") {
   #Calculation of repeated replication of parent sample  ommiting obervations in "ith" PSU. Delete-one jackknife method used by DHS.
 
   SE_rates <- data.frame(group =c(), SE =c())
+
+  group        <- rep(NA, length((group_levels)))
+  SE           <- rep(NA, length((group_levels)))
+  SE_rates     <- cbind(group, SE)
+  a            <- 1
+
   #### update
   for (group in group_levels) {
     sub_sample <- data[which(data[[grouping]] == group),]
@@ -105,6 +110,7 @@ childhoodmortality <- function(data, grouping, rate_type="underfive") {
     PSU <- sub_sample$PSU
     jack <- rep(NA, length(unique(PSU)))
     #Find unique PSUs and create replications
+    j <- 1
     for (i in unique(PSU)) {
 
       sub_sample_delete_i <-  sub_sample[which(!sub_sample$PSU == i),]
@@ -127,8 +133,9 @@ childhoodmortality <- function(data, grouping, rate_type="underfive") {
 
 
       mortality_type_rate <- calculate_component_survival_probabilities(cdpw)
-
-      jack[i] <- mortality_type_rate
+      if(is.na(mortality_type_rate)) browser()
+      jack[j] <- mortality_type_rate
+      j <- j + 1
 
     }
 
@@ -148,9 +155,9 @@ childhoodmortality <- function(data, grouping, rate_type="underfive") {
     diff_sums2 <- sum(diff_sums)
     SE <- sqrt ((1/(k*(k-1))*diff_sums2))
 
-    append <- data.frame(group, SE)
-
-    SE_rates <- rbind(SE_rates, append)
+    SE_rates[a,1] <- group
+    SE_rates[a,2] <- SE
+    a <- a + 1
 
   }
 
@@ -163,19 +170,19 @@ childhoodmortality <- function(data, grouping, rate_type="underfive") {
 
 
   disaggregate_mortality <- plyr::rename(disaggregate_mortality, c("group" = grouping))
-  disaggregate_mortality$Lower_confidence_interval <- disaggregate_mortality$mortality_type_rate-2*disaggregate_mortality$SE
-  disaggregate_mortality$Upper_confidence_interval <- disaggregate_mortality$mortality_type_rate+2*disaggregate_mortality$SE
+  disaggregate_mortality$Lower_confidence_interval <- disaggregate_mortality$rate-2*disaggregate_mortality$SE
+  disaggregate_mortality$Upper_confidence_interval <- disaggregate_mortality$rate+2*disaggregate_mortality$SE
 
   if(rate_type == "neonatal") {
-    disaggregate_mortality <- plyr::rename(disaggregate_mortality, c(mortality_type_rate = "neonatal"))
+    disaggregate_mortality <- plyr::rename(disaggregate_mortality, c(rate = "neonatal"))
   } else if (rate_type == "postneonatal") {
-    disaggregate_mortality <- plyr::rename(disaggregate_mortality, c(mortality_type_rate = "postneonatal"))
+    disaggregate_mortality <- plyr::rename(disaggregate_mortality, c(rate = "postneonatal"))
   } else if (rate_type == "infant") {
-    disaggregate_mortality <- plyr::rename(disaggregate_mortality, c(mortality_type_rate = "infant"))
+    disaggregate_mortality <- plyr::rename(disaggregate_mortality, c(rate = "infant"))
   } else if (rate_type == "child") {
-    disaggregate_mortality <- plyr::rename(disaggregate_mortality, c(mortality_type_rate = "child"))
+    disaggregate_mortality <- plyr::rename(disaggregate_mortality, c(rate = "child"))
   }
-  else disaggregate_mortality <- plyr::rename(disaggregate_mortality, c(mortality_type_rate = "underfive"))
+  else disaggregate_mortality <- plyr::rename(disaggregate_mortality, c(rate = "underfive"))
 
   return(disaggregate_mortality)
 }
