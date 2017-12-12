@@ -15,7 +15,7 @@
 #' @param rate_type This character string gives the type of mortality rate to be calculated (neonatal, postneonatal, infant, child, under-five)
 #'
 #' @examples
-#' data("model_dhs")
+#' data("model_ipums_dhs_dataset")
 #' underfive_mortality_rates <- childhoodmortality(
 #'  model_ipums_dhs_dataset,
 #'  grouping ="WEALTHQ",
@@ -28,7 +28,12 @@ childhoodmortality <- function(data, grouping, rate_type="underfive") {
   if (!rate_type %in% c("neonatal", "postneonatal", "infant", "child", "underfive")) stop("Please specify a valid mortality rate type. Valid options are neonatal, postneonatal, infant, child, underfive")
 
   #generate master table
-  mortality_rates <- data.frame(a =c(), rate =c(), IFM = c())
+  group_levels <- unique(data[[grouping]])
+  a = rep(NA, length(unique(PSU)))
+  rate =rep(NA, length(unique(PSU)))
+  IFM = rep(NA, length(unique(PSU)))
+
+  mortality_rates <- cbind(a, rate, IFM)
 
   data<- data[, c("YEAR", grouping, "PSU", "PERWEIGHT", "KIDDOBCMC", "INTDATECMC", "KIDAGEDIEDIMP")]
 
@@ -51,11 +56,9 @@ childhoodmortality <- function(data, grouping, rate_type="underfive") {
       }
     )
 
-  #Select observations for year 2008
-  group_levels <- unique(data[[grouping]])
   for (group in group_levels) {
     sub_sample <- data[which(data[[grouping]] == group),]
-
+    i <- 1
     # Calculates Component death probabilities for each age interval
     cdpw_sample <- compute_for_all_age_segments(sub_sample, age_segments)
 
@@ -77,7 +80,7 @@ childhoodmortality <- function(data, grouping, rate_type="underfive") {
     mortality_type_rate <- calculate_component_survival_probabilities(cdpw)
 
     append <- data.frame(group, mortality_type_rate)
-    mortality_rates <- rbind(mortality_rates, append)
+    mortality_rates[i,] <- append
 
 
   }
@@ -101,9 +104,8 @@ childhoodmortality <- function(data, grouping, rate_type="underfive") {
     sub_sample <- data[which(data[[grouping]] == group),]
     #Generate Vector
     jack <- rep(NA, length(unique(PSU)))
-
-    #Find unique PSUs and create replications
     PSU <- sub_sample$PSU
+    #Find unique PSUs and create replications
     for (i in unique(PSU)) {
 
       sub_sample_delete_i <-  sub_sample[which(!sub_sample$PSU == i),]
