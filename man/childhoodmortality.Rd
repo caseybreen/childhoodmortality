@@ -20,7 +20,7 @@ calculates childhood mortality & SE's
 data("model_ipums_dhs_dataset")
 underfive_mortality_rates <- childhoodmortality(
  model_ipums_dhs_dataset,
- grouping ="WEALTHQ",
+ grouping ="wealthq",
  rate_type = "underfive"
 )
 
