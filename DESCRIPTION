@@ -1,7 +1,7 @@
 Package: childhoodmortality
 Type: Package
 Title: Calculating Childhood Mortality Rates
-Version: 0.1.0
+Version: 0.2.0
 Author: Casey Breen
 Depends: R(>= 2.10.0)
 Maintainer: Casey Breen <cbreen@umn.edu>
