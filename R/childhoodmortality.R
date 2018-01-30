@@ -18,12 +18,17 @@
 #' data("model_ipums_dhs_dataset")
 #' underfive_mortality_rates <- childhoodmortality(
 #'  model_ipums_dhs_dataset,
-#'  grouping ="WEALTHQ",
+#'  grouping ="wealthq",
 #'  rate_type = "underfive"
 #' )
 #'
 #' @export
 childhoodmortality <- function(data, grouping, rate_type="underfive") {
+
+  # Convert all input to lower
+  names(data) <- tolower(names(data))
+  grouping    <- tolower(grouping)
+  rate_type    <- tolower(rate_type)
 
   if (!rate_type %in% c("neonatal", "postneonatal", "infant", "child", "underfive")) stop("Please specify a valid mortality rate type. Valid options are neonatal, postneonatal, infant, child, underfive")
 
@@ -33,8 +38,7 @@ childhoodmortality <- function(data, grouping, rate_type="underfive") {
   rate         <- rep(NA, length((group_levels)))
 
   mortality_rates <- cbind(group, rate)
-
-  data<- data[, c("YEAR", grouping, "PSU", "PERWEIGHT", "KIDDOBCMC", "INTDATECMC", "KIDAGEDIEDIMP")]
+  data<- data[, c("year", grouping, "psu", "perweight", "kiddobcmc", "intdatecmc", "kidagediedimp")]
 
   age_segments <- list(c(0, 1),
                        c(1, 2),
@@ -107,13 +111,13 @@ childhoodmortality <- function(data, grouping, rate_type="underfive") {
   for (group in group_levels) {
     sub_sample <- data[which(data[[grouping]] == group),]
     #Generate Vector
-    PSU <- sub_sample$PSU
-    jack <- rep(NA, length(unique(PSU)))
+    psu <- sub_sample$psu
+    jack <- rep(NA, length(unique(psu)))
     #Find unique PSUs and create replications
     j <- 1
-    for (i in unique(PSU)) {
+    for (i in unique(psu)) {
 
-      sub_sample_delete_i <-  sub_sample[which(!sub_sample$PSU == i),]
+      sub_sample_delete_i <-  sub_sample[which(!sub_sample$psu == i),]
 
       # Iterate over age segments
       cdpw_sample <- compute_for_all_age_segments(sub_sample_delete_i, age_segments)
@@ -170,8 +174,8 @@ childhoodmortality <- function(data, grouping, rate_type="underfive") {
 
 
   disaggregate_mortality <- plyr::rename(disaggregate_mortality, c("group" = grouping))
-  disaggregate_mortality$Lower_confidence_interval <- disaggregate_mortality$rate-2*disaggregate_mortality$SE
-  disaggregate_mortality$Upper_confidence_interval <- disaggregate_mortality$rate+2*disaggregate_mortality$SE
+  disaggregate_mortality$lower_confidence_interval <- disaggregate_mortality$rate-2*disaggregate_mortality$SE
+  disaggregate_mortality$upper_confidence_interval <- disaggregate_mortality$rate+2*disaggregate_mortality$SE
 
   if(rate_type == "neonatal") {
     disaggregate_mortality <- plyr::rename(disaggregate_mortality, c(rate = "neonatal"))
