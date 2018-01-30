@@ -10,21 +10,10 @@ Alternatively:
 ```devtools::install_github("caseybreen/childhoodmortality")```
 ### Overview
 
-The *childhoodmortality* package offers a straightforward approach to computing childhood mortality rates. The package was developed in accordance with the “Methodology of DHS Mortality Rates Estimation” section of the DHS Guide to Statistics (Rutstein 2006:90-95). Specifically, the package uses a synthetic cohort life table approach, combining mortality probabilities for age segments with actual cohort mortality experience. The \textbf{childhoodmortality} package defaults to the DHS Program’s practice of calculating mortality rates for five-year periods preceding the start date of the survey. By adhering to [DHS Guidelines](https://dhsprogram.com/pubs/pdf/DHSG1/Guide_to_DHS_Statistics_29Oct2012_DHSG1.pdf), estimates produced from the package can be compared to those published in the DHS Final Reports.
+The *childhoodmortality* package offers a straightforward approach to computing childhood mortality rates. The package was developed in accordance with the “Methodology of DHS Mortality Rates Estimation” section of the DHS Guide to Statistics (Rutstein 2006:90-95). Specifically, the package uses a synthetic cohort life table approach, combining mortality probabilities for age segments with actual cohort mortality experience. The `childhoodmortality` package defaults to the DHS Program’s practice of calculating mortality rates for five-year periods preceding the start date of the survey. By adhering to [DHS Guidelines](https://dhsprogram.com/pubs/pdf/DHSG1/Guide_to_DHS_Statistics_29Oct2012_DHSG1.pdf), estimates produced from the package can be compared to those published in the DHS Final Reports.
 
-DHS surveys are conducted using a multi-stage stratified design, so standard sampling error formulae for simple random samples cannot be applied. For mortality rates, the DHS Program uses a jackknife repeated replication approach outlined in Appendix C of the DHS Final Reports (Rutstein 2006). This resampling technique systematically omits a single cluster from the dataset, replicates the mortality rate estimate, repeats this replication for every cluster, and then uses the mortality rates computed in the replications to calculate standard errors. This approach controls for sample design. The *childhoodmortality* package computes standard errors for the mortality rate type specified. The formula for the jackknife repeated replication method is as follows: 
+DHS surveys are conducted using a multi-stage stratified design, so standard sampling error formulae for simple random samples cannot be applied. For mortality rates, the DHS Program uses a jackknife repeated replication approach outlined in Appendix C of the DHS Final Reports [DHS Final Reports](https://dhsprogram.com/pubs/pdf/FR293/FR293.pdf) (Rutstein 2006). This resampling technique systematically omits a single cluster from the dataset, replicates the mortality rate estimate, repeats this replication for every cluster, and then uses the mortality rates computed in the replications to calculate standard errors. This approach controls for sample design. The *childhoodmortality* package computes standard errors for the mortality rate type specified.
 
-
-![equation](http://www.sciweavers.org/tex2img.php?eq=%24%24SE%5E2%28r%29%20%3D%20var%28r%29%20%3D%20%5Cfrac%7B1%7D%7Bk%28k-1%29%7D%20%5Csum%5Climits_%7Bj%3D1%7D%5Ek%20%28r_i-r%29%5E2%20%24%24%0A&bc=White&fc=Black&im=jpg&fs=12&ff=arev&edit=0)
-
-in which:
-
-![equation](http://www.sciweavers.org/tex2img.php?eq=%24r%24&bc=White&fc=Black&im=jpg&fs=12&ff=arev&edit=0) is the mortality rate estimate
-
-![equation](http://www.sciweavers.org/tex2img.php?eq=%24r_%7B%28i%29%7D%24&bc=White&fc=Black&im=jpg&fs=12&ff=arev&edit=0) is the estimate computed from the samples omitting the ![equation](http://www.sciweavers.org/tex2img.php?eq=%24i%5E%7Bth%7D%24&bc=White&fc=Black&im=jpg&fs=12&ff=arev&edit=0) cluster
-
-![equation](http://www.sciweavers.org/tex2img.php?eq=%24k%24&bc=White&fc=Black&im=jpg&fs=12&ff=arev&edit=0)    is the total number of clusters
-   
 
 ### Using the childhoodmortality package
 
