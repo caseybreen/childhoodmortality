@@ -14,7 +14,10 @@ Description: Calculates childhood (neonatal, postneonatal, infant, child, and un
 License: GPL-3
 Encoding: UTF-8
 LazyData: true
-Imports: 
+Imports:
         plyr,
         matrixStats
 RoxygenNote: 6.0.1
+Suggests: knitr,
+    rmarkdown
+VignetteBuilder: knitr
