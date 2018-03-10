@@ -17,7 +17,7 @@ DHS surveys are conducted using a multi-stage stratified design, so standard sam
 
 ### Using the childhoodmortality package
 
-The three required arguments for the primary function \texttt{childhoodmortality()} are:
+The three required arguments for the primary function childhoodmortality() are:
 
 - __data__: the data frame containing the IPUMS-DHS microdata (or DHS data with column names renamed to match IPUMS-DHS). Six variables, available in all IPUMS-DHS datasets, are necessary to compute child mortality:
 
