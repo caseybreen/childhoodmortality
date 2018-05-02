@@ -30,7 +30,7 @@ compute_cdpw <- function(df, lower_age_segment, upper_age_segment) {
 
   T_num <- compute_coweights(T_num, lower_age_segment, upper_age_segment)
 
-  T_den <- df[which(!df$kidagediedimp < (lower_age_segment + 1) |
+  T_den <- df[which(df$kidagediedimp >= (lower_age_segment + 1) |
                       is.na(df$kidagediedimp)), ]
   T_den <- compute_coweights(T_den, lower_age_segment, upper_age_segment)
 
