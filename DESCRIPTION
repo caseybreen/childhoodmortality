@@ -17,7 +17,7 @@ LazyData: true
 Imports:
         plyr,
         matrixStats,
-    dplyr
+        dplyr
 RoxygenNote: 6.0.1
 Suggests: knitr,
     rmarkdown

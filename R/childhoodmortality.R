@@ -23,7 +23,7 @@
 #' )
 #'
 #' @export
-childhoodmortality <- function(data, grouping, rate_type="underfive") {
+childhoodmortality <- function(data, grouping = "year", rate_type="underfive") {
 
   # Convert all input to lower
   names(data) <- tolower(names(data))
@@ -38,7 +38,9 @@ childhoodmortality <- function(data, grouping, rate_type="underfive") {
   rate         <- rep(NA, length((group_levels)))
 
   mortality_rates <- cbind(group, rate)
-  data<- data[, c("year", grouping, "psu", "perweight", "kiddobcmc", "intdatecmc", "kidagediedimp")]
+  varnames <- unique(c("year", grouping, "psu", "perweight", "kiddobcmc", "intdatecmc", "kidagediedimp"))
+  data <- data[,varnames]
+  class(data) <- "data.frame"
 
   age_segments <- list(c(0, 1),
                        c(1, 2),
@@ -106,6 +108,9 @@ childhoodmortality <- function(data, grouping, rate_type="underfive") {
   SE           <- rep(NA, length((group_levels)))
   SE_rates     <- cbind(group, SE)
   a            <- 1
+  grouped_data <- dplyr::group_by_at(data, c(grouping, "psu"))
+  grouped_data <- dplyr::summarize(grouped_data)
+  p            <- dplyr::progress_estimated(nrow(grouped_data))
 
   #### update
   for (group in group_levels) {
@@ -113,11 +118,13 @@ childhoodmortality <- function(data, grouping, rate_type="underfive") {
     #Generate Vector
     psu <- sub_sample$psu
     jack <- rep(NA, length(unique(psu)))
+
     #Find unique PSUs and create replications
     j <- 1
     for (i in unique(psu)) {
-
       sub_sample_delete_i <-  sub_sample[which(!sub_sample$psu == i),]
+      p$tick()
+      p$print()
 
       # Iterate over age segments
       cdpw_sample <- compute_for_all_age_segments(sub_sample_delete_i, age_segments)
