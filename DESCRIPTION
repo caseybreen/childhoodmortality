@@ -16,7 +16,8 @@ Encoding: UTF-8
 LazyData: true
 Imports:
         plyr,
-        matrixStats
+        matrixStats,
+        dplyr
 RoxygenNote: 6.0.1
 Suggests: knitr,
     rmarkdown
