@@ -10,7 +10,7 @@ test_that("We can calculate the neonatal rate", {
     rate_type = "neonatal"
   )
   should_be <- data.frame(
-    wealthq = c(1, 2),
+    wealthq = c(1L, 2L),
     neonatal = c(31.1427321440335, 24.3486921534002),
     SE = c(12.7836577602188, 13.7750866051571),
     lower_confidence_interval = c(5.57541662359598, -3.201481056914),
@@ -26,7 +26,7 @@ test_that("We can calculate the postneonatal rate", {
     rate_type = "postneonatal"
   )
   should_be <- data.frame(
-    wealthq = c(1, 2),
+    wealthq = c(1L, 2L),
     postneonatal = c(32.7166400925034, 44.448588812974),
     SE = c(9.95625699915569, 16.5902419616456),
     lower_confidence_interval = c(12.804126094192, 11.2681048896829),
@@ -42,7 +42,7 @@ test_that("We can calculate the infant rate", {
     rate_type = "infant"
   )
   should_be <- data.frame(
-    wealthq = c(1, 2),
+    wealthq = c(1L, 2L),
     infant = c(62.8404866774834, 67.7150159607139),
     SE = c(14.5961688937916, 19.9707261153864),
     lower_confidence_interval = c(33.6481488899002, 27.7735637299412),
@@ -58,7 +58,7 @@ test_that("We can calculate the child rate", {
     rate_type = "child"
   )
   should_be <- data.frame(
-    wealthq = c(1, 2),
+    wealthq = c(1L, 2L),
     child = c(42.343099105013, 70.5230459237924),
     SE = c(18.4045992737969, 30.8881871605915),
     lower_confidence_interval = c(5.53390055741924, 8.7466716026095),
@@ -74,7 +74,7 @@ test_that("We can calculate the underfive rate", {
     rate_type = "underfive"
   )
   should_be <- data.frame(
-    wealthq = c(1, 2),
+    wealthq = c(1L, 2L),
     underfive = c(102.522724827305, 133.462592704179),
     SE = c(21.1758368149082, 32.6586561301917),
     lower_confidence_interval = c(60.1710511974882, 68.1452804437953),
