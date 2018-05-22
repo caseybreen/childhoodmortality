@@ -42,7 +42,7 @@ childhoodmortality <- function(data, grouping = "year", rate_type="underfive") {
   data <- data[,varnames]
   class(data) <- "data.frame"
 
-  age_segments <- list(c(0, 1),
+  age_segments <- list(c(0, 0),
                        c(1, 2),
                        c(3, 5),
                        c(6, 11),

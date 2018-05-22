@@ -4,7 +4,7 @@
 \alias{childhoodmortality}
 \title{Calculates childhood mortality}
 \usage{
-childhoodmortality(data, grouping, rate_type = "underfive")
+childhoodmortality(data, grouping = "year", rate_type = "underfive")
 }
 \arguments{
 \item{data}{dataframe object containing DHS variables YEAR, PSU, PERWEIGHT, KIDDOBCMC, INTDATECMC, KIDAGEDIEDIMP, and grouping var.}
