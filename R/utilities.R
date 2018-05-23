@@ -49,7 +49,7 @@ compute_coweights <- function(df, lower_age_segment, upper_age_segment) {
 
   #Set lower and upper limits of of time period
   df$tu <- df$intdatecmc
-  df$tl <- df$intdatecmc - 60
+  df$tl <- df$intdatecmc - df$period
 
   #Calculate cohort limits
   df$tlau <- df$tl - df$au
@@ -58,13 +58,20 @@ compute_coweights <- function(df, lower_age_segment, upper_age_segment) {
   df$tual <- df$tu - df$al
 
   #Create the 3 cohorts by full exposure (1) or partial exposure (0.5)
-  df$coweight[df$kiddobcmc >= df$tlau & df$kiddobcmc < df$tlal] <- 0.5
-  df$coweight[df$kiddobcmc >= df$tlal & df$kiddobcmc < df$tuau] <- 1
-  df$coweight[df$kiddobcmc >= df$tuau & df$kiddobcmc < df$tual] <-
-    ifelse(upper_age_segment == 1, 1, 0.5)
+  df$coweight_num[df$kiddobcmc >= df$tlau - 1 & df$kiddobcmc < df$tlal] <- 0.5
+  df$coweight_num[df$kiddobcmc >= df$tlal & df$kiddobcmc < df$tuau-1] <- 1
+  df$coweight_num[df$kiddobcmc >= df$tuau - 1 & df$kiddobcmc < df$tual] <-
+    ifelse(upper_age_segment == 0, 1, 1)
+
+
+  df$coweight_den[df$kiddobcmc >= df$tlau - 1 & df$kiddobcmc < df$tlal] <- 0.5
+  df$coweight_den[df$kiddobcmc >= df$tlal & df$kiddobcmc < df$tuau-1] <- 1
+  df$coweight_den[df$kiddobcmc >= df$tuau - 1 & df$kiddobcmc < df$tual] <- 0.5
 
   #Weight numerator by person weight
-  df$coweight2 <- df$coweight * df$perweight
+  df$coweight_num_weight <- df$coweight_num * (df$perweight*1000000)
+  df$coweight_den_weight <- df$coweight_den * (df$perweight*1000000)
+
 
   df$numerator <- !is.na(df$kidagediedimp) & df$kidagediedimp >= lower_age_segment &
     df$kidagediedimp < upper_age_segment
