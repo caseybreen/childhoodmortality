@@ -23,21 +23,21 @@ compute_cdpw <- function(df, lower_age_segment, upper_age_segment) {
   #Numerator Calculation
   #Select sub-sample where age at death > lower age segment < upper age segment
   T_num <- df[which(df$kidagediedimp >= lower_age_segment &
-                      df$kidagediedimp < upper_age_segment), ]
+                      df$kidagediedimp <= upper_age_segment), ]
 
   #Only calculate CDPs if dataset is populated
   if (nrow(T_num) == 0) return(list(cdp = 0, cdpw = 0))
 
   T_num <- compute_coweights(T_num, lower_age_segment, upper_age_segment)
 
-  T_den <- df[which(df$kidagediedimp >= (lower_age_segment + 1) |
-                      is.na(df$kidagediedimp)), ]
+
+  T_den <- df[which(df$kidagediedimp >= (lower_age_segment)), ]
   T_den <- compute_coweights(T_den, lower_age_segment, upper_age_segment)
 
-  cdpw <- sum(T_num$coweight2, na.rm = TRUE) /
-    (sum(T_den$coweight2, na.rm = TRUE))
-  cdp <- sum(T_num$coweight, na.rm = TRUE) /
-    (sum(T_den$coweight, na.rm = TRUE))
+  cdpw <- sum(T_num$coweight_num_weight, na.rm = TRUE) /
+    (sum(T_den$coweight_den_weight, na.rm = TRUE))
+  cdp <- sum(T_num$coweight_num, na.rm = TRUE) /
+    (sum(T_den$coweight_den, na.rm = TRUE))
 
   out <- (list(cdpw = cdpw, cdp = cdp))
   if (!"cdpw" %in% names(out)) print (cdpw)
@@ -77,7 +77,7 @@ compute_coweights <- function(df, lower_age_segment, upper_age_segment) {
 
   #Set lower and upper limits of of time period
   df$tu <- df$intdatecmc
-  df$tl <- df$intdatecmc - 60
+  df$tl <- df$intdatecmc - df$period
 
   #Calculate cohort limits
   df$tlau <- df$tl - df$au
@@ -86,13 +86,20 @@ compute_coweights <- function(df, lower_age_segment, upper_age_segment) {
   df$tual <- df$tu - df$al
 
   #Create the 3 cohorts by full exposure (1) or partial exposure (0.5)
-  df$coweight[df$kiddobcmc >= df$tlau & df$kiddobcmc < df$tlal] <- 0.5
-  df$coweight[df$kiddobcmc >= df$tlal & df$kiddobcmc < df$tuau] <- 1
-  df$coweight[df$kiddobcmc >= df$tuau & df$kiddobcmc < df$tual] <-
-    ifelse(upper_age_segment == 1, 1, 0.5)
+  df$coweight_num[df$kiddobcmc >= df$tlau - 1 & df$kiddobcmc < df$tlal] <- 0.5
+  df$coweight_num[df$kiddobcmc >= df$tlal & df$kiddobcmc < df$tuau-1] <- 1
+  df$coweight_num[df$kiddobcmc >= df$tuau - 1 & df$kiddobcmc < df$tual] <-
+    ifelse(upper_age_segment == 0, 1, 1)
+
+
+  df$coweight_den[df$kiddobcmc >= df$tlau - 1 & df$kiddobcmc < df$tlal] <- 0.5
+  df$coweight_den[df$kiddobcmc >= df$tlal & df$kiddobcmc < df$tuau-1] <- 1
+  df$coweight_den[df$kiddobcmc >= df$tuau - 1 & df$kiddobcmc < df$tual] <- 0.5
 
   #Weight numerator by person weight
-  df$coweight2 <- df$coweight * df$perweight
+  df$coweight_num_weight <- df$coweight_num * (df$perweight*1000000)
+  df$coweight_den_weight <- df$coweight_den * (df$perweight*1000000)
+
 
   return(df)
 }
