@@ -27,16 +27,16 @@ compute_for_all_age_segments <- function(df, grouping) {
   df <- dplyr::group_by_at(df, c(grouping, "age_segment", "psu"))
   out <- dplyr::summarise(
     df,
-    cdpw_num = sum(coweight2[numerator], na.rm = TRUE),
-    cdpw_denom = sum(coweight2[denominator], na.rm = TRUE),
-    cdp_num = sum(coweight[numerator], na.rm = TRUE),
-    cdp_denom = sum(coweight[numerator], na.rm = TRUE)
+    cdpw_num = sum(coweight_num_weight[numerator], na.rm = TRUE),
+    cdpw_denom = sum(coweight_den_weight[denominator], na.rm = TRUE),
+    cdp_num = sum(coweight_num[numerator], na.rm = TRUE),
+    cdp_denom = sum(coweight_den[denominator], na.rm = TRUE)
   )
   dplyr::mutate(
     out,
-    neonatal = age_segment == "0-1",
+    neonatal = age_segment == "0-0",
     postneonatal = age_segment %in% c("1-2", "3-5", "6-11"),
-    infant = age_segment %in% c("0-1", "1-2", "3-5", "6-11"),
+    infant = age_segment %in% c("0-0", "1-2", "3-5", "6-11"),
     child = age_segment %in% c("12-23", "24-35", "36-47", "48-59"),
     underfive = TRUE
   )
@@ -74,12 +74,14 @@ compute_coweights <- function(df, lower_age_segment, upper_age_segment) {
 
 
   df$numerator <- !is.na(df$kidagediedimp) & df$kidagediedimp >= lower_age_segment &
-    df$kidagediedimp < upper_age_segment
+    df$kidagediedimp <= upper_age_segment
 
   df$denominator <- is.na(df$kidagediedimp) | df$kidagediedimp >= lower_age_segment
 
 
   df$age_segment <- paste0(lower_age_segment, "-", upper_age_segment)
 
-  df[ , c("unique_id", "age_segment", "coweight", "coweight2", "numerator", "denominator")]
+  df[ , c("unique_id", "age_segment", "coweight_num", "coweight_den",
+          "coweight_num_weight", "coweight_den_weight", "numerator",
+          "denominator")]
 }

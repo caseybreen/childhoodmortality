@@ -45,9 +45,8 @@ childhoodmortality <- function(data, grouping = "year", rate_type="underfive", p
 
   mortality_rates <- cbind(group, rate)
 
-  data <- data %>%
-    select(year, grouping , psu, perweight, kiddobcmc, intdatecmc, kidagediedimp) %>%
-    mutate(period = period * 12)
+  data <- dplyr::select(data, year, grouping , psu, perweight, kiddobcmc, intdatecmc, kidagediedimp)
+  data <- dplyr::mutate(data, period = period * 12)
   class(data) <- "data.frame"
 
   age_segments <- list(c(0, 0),
@@ -69,7 +68,6 @@ childhoodmortality <- function(data, grouping = "year", rate_type="underfive", p
       }
     )
 
-<<<<<<< HEAD
   data <- dplyr::mutate(data, unique_id = 1:nrow(data))
   coweights <- purrr::map_dfr(
     age_segments,
@@ -112,7 +110,7 @@ childhoodmortality <- function(data, grouping = "year", rate_type="underfive", p
             sub_sample_delete_i <- sub_sample[which(!sub_sample$psu == i),]
             p$tick()
             p$print()
-            out <- calculate_component_survival_probabilities(
+            calculate_component_survival_probabilities(
               sub_sample_delete_i,
               grouping
             )
@@ -149,7 +147,8 @@ childhoodmortality <- function(data, grouping = "year", rate_type="underfive", p
   #################################################################################################################
 
   #Merge U5 Mortality Rate with the U5 Standard Errors
-
+  attr(mortality_rates[[grouping]], "label") <- NULL
+  attr(mortality_rates[[grouping]], "var_desc") <- NULL
   disaggregate_mortality <- dplyr::left_join(mortality_rates, SE_rates, by = grouping)
 
 

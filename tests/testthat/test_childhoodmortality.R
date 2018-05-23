@@ -10,13 +10,13 @@ test_that("We can calculate the neonatal rate", {
     rate_type = "neonatal"
   )
   should_be <- data.frame(
-    wealthq = c(1L, 2L),
-    neonatal = c(31.1427321440335, 24.3486921534002),
-    SE = c(12.7836577602188, 13.7750866051571),
-    lower_confidence_interval = c(5.57541662359598, -3.201481056914),
-    upper_confidence_interval = c(56.710047664471, 51.8988653637144)
+    wealthq = c(1, 2),
+    neonatal = c(30.7517397785223, 24.2009365148407),
+    SE = c(12.299727083382, 13.4682943141511),
+    lower_confidence_interval = c(6.15228561175826, -2.7356521134616),
+    upper_confidence_interval = c(55.3511939452864, 51.137525143143)
   )
-  expect_equivalent(neonat, should_be)
+  expect_equal(as.data.frame(neonat), should_be)
 })
 
 test_that("We can calculate the postneonatal rate", {
@@ -26,13 +26,13 @@ test_that("We can calculate the postneonatal rate", {
     rate_type = "postneonatal"
   )
   should_be <- data.frame(
-    wealthq = c(1L, 2L),
-    postneonatal = c(32.7166400925034, 44.448588812974),
-    SE = c(9.95625699915569, 16.5902419616456),
-    lower_confidence_interval = c(12.804126094192, 11.2681048896829),
-    upper_confidence_interval = c(52.6291540908148, 77.6290727362651)
+    wealthq = c(1, 2),
+    postneonatal = c(38.8478038650554, 58.9227696496323),
+    SE = c(12.118324788531, 18.8277349032995),
+    lower_confidence_interval = c(14.6111542879935, 21.2672998430333),
+    upper_confidence_interval = c(63.0844534421173, 96.5782394562312)
   )
-  expect_equivalent(postneonat, should_be)
+  expect_equal(as.data.frame(postneonat), should_be)
 })
 
 test_that("We can calculate the infant rate", {
@@ -43,12 +43,12 @@ test_that("We can calculate the infant rate", {
   )
   should_be <- data.frame(
     wealthq = c(1L, 2L),
-    infant = c(62.8404866774834, 67.7150159607139),
-    SE = c(14.5961688937916, 19.9707261153864),
-    lower_confidence_interval = c(33.6481488899002, 27.7735637299412),
-    upper_confidence_interval = c(92.0328244650667, 107.656468191487)
+    infant = c(68.4049060881524, 81.6977199569037),
+    SE = c(15.467926457812, 21.4301764659382),
+    lower_confidence_interval = c(37.4690531725284, 38.8373670250273),
+    upper_confidence_interval = c(99.3407590037764, 124.55807288878)
   )
-  expect_equivalent(infant, should_be)
+  expect_equal(as.data.frame(infant), should_be)
 })
 
 test_that("We can calculate the child rate", {
@@ -59,12 +59,12 @@ test_that("We can calculate the child rate", {
   )
   should_be <- data.frame(
     wealthq = c(1L, 2L),
-    child = c(42.343099105013, 70.5230459237924),
-    SE = c(18.4045992737969, 30.8881871605915),
-    lower_confidence_interval = c(5.53390055741924, 8.7466716026095),
-    upper_confidence_interval = c(79.1522976526068, 132.299420244975)
+    child = c(42.4963743878745, 90.2625432999845),
+    SE = c(18.335496568309, 34.1300574503225),
+    lower_confidence_interval = c(5.82538125125643, 22.0024283993396),
+    upper_confidence_interval = c(79.1673675244925, 158.522658200629)
   )
-  expect_equivalent(child, should_be)
+  expect_equal(as.data.frame(child), should_be)
 })
 
 test_that("We can calculate the underfive rate", {
@@ -75,10 +75,10 @@ test_that("We can calculate the underfive rate", {
   )
   should_be <- data.frame(
     wealthq = c(1L, 2L),
-    underfive = c(102.522724827305, 133.462592704179),
-    SE = c(21.1758368149082, 32.6586561301917),
-    lower_confidence_interval = c(60.1710511974882, 68.1452804437953),
-    upper_confidence_interval = c(144.874398457121, 198.779904964562)
+    underfive = c(107.994319976937, 164.586019271768),
+    SE = c(21.3588493281453, 34.3981955680069),
+    lower_confidence_interval = c(65.2766213206468, 95.7896281357543),
+    upper_confidence_interval = c(150.712018633228, 233.382410407782)
   )
-  expect_equivalent(underfive, should_be)
+  expect_equal(as.data.frame(underfive), should_be)
 })
