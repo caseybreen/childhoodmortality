@@ -76,7 +76,7 @@ compute_coweights <- function(df, lower_age_segment, upper_age_segment) {
 
   #Set lower and upper limits of of time period
   df$tu <- df$intdatecmc
-  df$tl <- df$intdatecmc - 60
+  df$tl <- df$intdatecmc - df$period
 
   #Calculate cohort limits
   df$tlau <- df$tl - df$au

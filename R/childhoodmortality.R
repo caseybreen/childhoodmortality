@@ -23,12 +23,13 @@
 #' )
 #'
 #' @export
-childhoodmortality <- function(data, grouping = "year", rate_type="underfive") {
+childhoodmortality <- function(data, grouping = "year", rate_type="underfive", period = 5) {
 
   # Convert all input to lower
   names(data) <- tolower(names(data))
   grouping    <- tolower(grouping)
   rate_type    <- tolower(rate_type)
+  period <- period
 
   if (!rate_type %in% c("neonatal", "postneonatal", "infant", "child", "underfive")) stop("Please specify a valid mortality rate type. Valid options are neonatal, postneonatal, infant, child, underfive")
 
@@ -38,8 +39,10 @@ childhoodmortality <- function(data, grouping = "year", rate_type="underfive") {
   rate         <- rep(NA, length((group_levels)))
 
   mortality_rates <- cbind(group, rate)
-  varnames <- unique(c("year", grouping, "psu", "perweight", "kiddobcmc", "intdatecmc", "kidagediedimp"))
-  data <- data[,varnames]
+
+  data <- data %>%
+    select(year, grouping , psu, perweight, kiddobcmc, intdatecmc, kidagediedimp) %>%
+    mutate(period = period * 12)
   class(data) <- "data.frame"
 
   age_segments <- list(c(0, 0),
@@ -80,7 +83,6 @@ childhoodmortality <- function(data, grouping = "year", rate_type="underfive") {
     } else cdpw <- data.frame(cdpw=cdpw_sample$cdpw_sample)
 
 
-    # Call Utility Functions
     mortality_type_rate <- calculate_component_survival_probabilities(cdpw)
 
     mortality_rates[i,1] <- group
