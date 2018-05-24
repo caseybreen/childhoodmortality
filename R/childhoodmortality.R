@@ -12,7 +12,9 @@
 #'
 #' @param grouping This character string gives the variable name of the variable denoting groups.
 #'
-#' @param rate_type This character string gives the type of mortality rate to be calculated (neonatal, postneonatal, infant, child, under-five)
+#' @param rate_type This character string gives the type of mortality rate to be calculated (neonatal, postneonatal, infant, child, under-five).
+#'
+#' @param period This numeric value gives the period in years for which the mortality rate will be calculated (default 5 years).
 #'
 #' @examples
 #' data("model_ipums_dhs_dataset")
@@ -24,6 +26,8 @@
 #'
 #' @export
 childhoodmortality <- function(data, grouping = "year", rate_type="underfive", period = 5) {
+
+  . <- "null"
 
   # Convert all input to lower
   names(data) <- tolower(names(data))
@@ -45,7 +49,12 @@ childhoodmortality <- function(data, grouping = "year", rate_type="underfive", p
 
   mortality_rates <- cbind(group, rate)
 
-  data <- dplyr::select(data, year, grouping , psu, perweight, kiddobcmc, intdatecmc, kidagediedimp)
+  # Check if inout data comes from IPUMS-DHS or DHS
+  if ("kiddobcmc" %in% colnames(data)) {
+    data <- dplyr::select(data, year, grouping , psu, perweight, kiddobcmc, intdatecmc, kidagediedimp)}
+  else {data <- dplyr::select(data, year = year, grouping , psu = v021, perweight = v005, kiddobcmc = b3, intdatecmc = v008, kidagediedimp = b7)}
+
+
   data <- dplyr::mutate(data, period = period * 12)
   class(data) <- "data.frame"
 
@@ -165,7 +174,7 @@ childhoodmortality <- function(data, grouping = "year", rate_type="underfive", p
     ~ rate_type
   )
 
-  return(disaggregate_mortality)
+  return(as.data.frame(disaggregate_mortality))
 
 }
 

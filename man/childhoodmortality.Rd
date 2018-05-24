@@ -4,14 +4,17 @@
 \alias{childhoodmortality}
 \title{Calculates childhood mortality}
 \usage{
-childhoodmortality(data, grouping = "year", rate_type = "underfive")
+childhoodmortality(data, grouping = "year", rate_type = "underfive",
+  period = 5)
 }
 \arguments{
 \item{data}{dataframe object containing DHS variables YEAR, PSU, PERWEIGHT, KIDDOBCMC, INTDATECMC, KIDAGEDIEDIMP, and grouping var.}
 
 \item{grouping}{This character string gives the variable name of the variable denoting groups.}
 
-\item{rate_type}{This character string gives the type of mortality rate to be calculated (neonatal, postneonatal, infant, child, under-five)}
+\item{rate_type}{This character string gives the type of mortality rate to be calculated (neonatal, postneonatal, infant, child, under-five).}
+
+\item{period}{This numeric value gives the period in years for which the mortality rate will be calculated (default 5 years).}
 }
 \description{
 calculates childhood mortality & SE's

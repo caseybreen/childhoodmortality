@@ -20,7 +20,8 @@ Imports:
         dplyr,
     purrr,
     tidyr,
-    haven
+    haven,
+    testthat
 RoxygenNote: 6.0.1
 Suggests: knitr,
     rmarkdown
