@@ -5,68 +5,41 @@
 #######################################################
 
 
-calculate_component_survival_probabilities <- function(df) {
+calculate_component_survival_probabilities <- function(df, grouping) {
+  #Calculate component death probabilities
+  df <- dplyr::summarise(
+    df,
+    cdpw = sum(cdpw_num) / sum(cdpw_denom)
+  )
+
   #Calculate component survival probabilities
-  df$csp <- (1 - df$cdpw)
-
-  #Create calculate the product of all component survival probabilities
-  cspw <- data.matrix(df$csp)
-  cspw_prod <- matrixStats::colProds(cspw)
-
-  #Subtract product from 1 and multiply by 1,000
-  return(abs(cspw_prod - 1) * 1000)
+  df <- dplyr::mutate(df, csp = 1 - cdpw)
+  df <- dplyr::group_by_at(df, grouping)
+  dplyr::summarise(
+    df,
+    mortality_rate = abs(prod(csp) - 1) * 1000
+  )
 }
 
 
-compute_cdpw <- function(df, lower_age_segment, upper_age_segment) {
+compute_for_all_age_segments <- function(df, grouping) {
 
-  #Numerator Calculation
-  #Select sub-sample where age at death > lower age segment < upper age segment
-  T_num <- df[which(df$kidagediedimp >= lower_age_segment &
-                      df$kidagediedimp <= upper_age_segment), ]
-
-  #Only calculate CDPs if dataset is populated
-  if (nrow(T_num) == 0) return(list(cdp = 0, cdpw = 0))
-
-  T_num <- compute_coweights(T_num, lower_age_segment, upper_age_segment)
-
-  T_den <- df[which(df$kidagediedimp >= (lower_age_segment)), ]
-  T_den <- compute_coweights(T_den, lower_age_segment, upper_age_segment)
-
-  cdpw <- sum(T_num$coweight_num_weight, na.rm = TRUE) /
-    (sum(T_den$coweight_den_weight, na.rm = TRUE))
-  cdp <- sum(T_num$coweight_num, na.rm = TRUE) /
-    (sum(T_den$coweight_den, na.rm = TRUE))
-
-  out <- (list(cdpw = cdpw, cdp = cdp))
-  if (!"cdpw" %in% names(out)) print (cdpw)
-
-  return(list(cdpw = cdpw, cdp = cdp))
-}
-
-
-compute_for_all_age_segments <- function(df, age_segments) {
-
-  cdpw_sample <- numeric(length = length(age_segments))
-  names(cdpw_sample) <- names(age_segments)
-  cdp_sample <- numeric(length = length(age_segments))
-  names(cdp_sample) <- names(age_segments)
-
-  for (i in seq_along (age_segments)) {
-    age_seg <- age_segments[[i]]
-    age_seg_label <- names(age_segments)[i]
-
-    lower_age_segment <- age_seg[1]
-    upper_age_segment <- age_seg[2]
-
-    .cdpw <- compute_cdpw(df, lower_age_segment, upper_age_segment)
-
-    cdpw_sample[age_seg_label] <- .cdpw$cdpw
-    cdp_sample[age_seg_label] <- .cdpw$cdp
-  }
-
-  return(list(cdpw_sample = cdpw_sample, cdp_sample = cdp_sample))
-
+  df <- dplyr::group_by_at(df, c(grouping, "age_segment", "psu"))
+  out <- dplyr::summarise(
+    df,
+    cdpw_num = sum(coweight_num_weight[numerator], na.rm = TRUE),
+    cdpw_denom = sum(coweight_den_weight[denominator], na.rm = TRUE),
+    cdp_num = sum(coweight_num[numerator], na.rm = TRUE),
+    cdp_denom = sum(coweight_den[denominator], na.rm = TRUE)
+  )
+  dplyr::mutate(
+    out,
+    neonatal = age_segment == "0-0",
+    postneonatal = age_segment %in% c("1-2", "3-5", "6-11"),
+    infant = age_segment %in% c("0-0", "1-2", "3-5", "6-11"),
+    child = age_segment %in% c("12-23", "24-35", "36-47", "48-59"),
+    underfive = TRUE
+  )
 }
 
 compute_coweights <- function(df, lower_age_segment, upper_age_segment) {
@@ -100,5 +73,15 @@ compute_coweights <- function(df, lower_age_segment, upper_age_segment) {
   df$coweight_den_weight <- df$coweight_den * (df$perweight*1000000)
 
 
-  return(df)
+  df$numerator <- !is.na(df$kidagediedimp) & df$kidagediedimp >= lower_age_segment &
+    df$kidagediedimp <= upper_age_segment
+
+  df$denominator <- is.na(df$kidagediedimp) | df$kidagediedimp >= lower_age_segment
+
+
+  df$age_segment <- paste0(lower_age_segment, "-", upper_age_segment)
+
+  df[ , c("unique_id", "age_segment", "coweight_num", "coweight_den",
+          "coweight_num_weight", "coweight_den_weight", "numerator",
+          "denominator")]
 }

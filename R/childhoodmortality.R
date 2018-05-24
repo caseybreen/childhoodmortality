@@ -33,6 +33,11 @@ childhoodmortality <- function(data, grouping = "year", rate_type="underfive", p
 
   if (!rate_type %in% c("neonatal", "postneonatal", "infant", "child", "underfive")) stop("Please specify a valid mortality rate type. Valid options are neonatal, postneonatal, infant, child, underfive")
 
+  if (haven::is.labelled(data[[grouping]])) {
+    cat(paste0("Variable ", grouping, " will be converted from class labelled to factor to preserve labels.\n"))
+    data <- dplyr::mutate_at(data, grouping, ~ haven::as_factor(., levels = "both"))
+  }
+
   #generate master table
   group_levels <- unique(data[[grouping]])
   group        <- rep(NA, length((group_levels)))
@@ -40,9 +45,8 @@ childhoodmortality <- function(data, grouping = "year", rate_type="underfive", p
 
   mortality_rates <- cbind(group, rate)
 
-  data <- data %>%
-    select(year, grouping , psu, perweight, kiddobcmc, intdatecmc, kidagediedimp) %>%
-    mutate(period = period * 12)
+  data <- dplyr::select(data, year, grouping , psu, perweight, kiddobcmc, intdatecmc, kidagediedimp)
+  data <- dplyr::mutate(data, period = period * 12)
   class(data) <- "data.frame"
 
   age_segments <- list(c(0, 0),
@@ -60,36 +64,21 @@ childhoodmortality <- function(data, grouping = "year", rate_type="underfive", p
     sapply(
       age_segments,
       function(x) {
-        paste0("age_", x[1], "_to_", x[2])
+        paste0(x[1], "-", x[2])
       }
     )
-  i <- 1
-  for (group in group_levels) {
-    sub_sample <- data[which(data[[grouping]] == group),]
-    # Calculates Component death probabilities for each age interval
-    cdpw_sample <- compute_for_all_age_segments(sub_sample, age_segments)
 
-    # Calculates under-Five mortality rate from component death probablities
-
-    # Estimates based on rate type
-    if(rate_type == "neonatal") {
-      cdpw <- data.frame(cdpw=cdpw_sample$cdpw_sample[1:1])
-    } else if (rate_type == "postneonatal") {
-      cdpw <- data.frame(cdpw=cdpw_sample$cdpw_sample[2:4])
-    } else if (rate_type == "infant") {
-      cdpw <- data.frame(cdpw=cdpw_sample$cdpw_sample[1:4])
-    } else if (rate_type == "child") {
-      cdpw <- data.frame(cdpw=cdpw_sample$cdpw_sample[5:8])
-    } else cdpw <- data.frame(cdpw=cdpw_sample$cdpw_sample)
-
-
-    mortality_type_rate <- calculate_component_survival_probabilities(cdpw)
-
-    mortality_rates[i,1] <- group
-    mortality_rates[i,2] <- mortality_type_rate
-    i <- i + 1
-
-  }
+  data <- dplyr::mutate(data, unique_id = 1:nrow(data))
+  coweights <- purrr::map_dfr(
+    age_segments,
+    ~ compute_coweights(data, .[1], .[2])
+  )
+  data <- dplyr::left_join(data, coweights, by = "unique_id")
+  # data <- tidyr::nest(data, age_segment, coweight, coweight2, numerator, denominator, .key = "coweights")
+  cdpw_all <- compute_for_all_age_segments(data, grouping)
+  cdpw <- dplyr::filter_at(cdpw_all, rate_type, dplyr::all_vars(.))
+  cdpw <- dplyr::group_by_at(cdpw, c(grouping, "age_segment"))
+  mortality_rates <- calculate_component_survival_probabilities(cdpw, grouping)
 
   ###############################################################
   # Jack Knife Script for Standard Error Calculation
@@ -102,101 +91,81 @@ childhoodmortality <- function(data, grouping = "year", rate_type="underfive", p
   # Final Reports for estimating sampling error.
   #################################################################
 
-  #Calculation of repeated replication of parent sample  ommiting obervations in "ith" PSU. Delete-one jackknife method used by DHS.
-
-  SE_rates <- data.frame(group =c(), SE =c())
-
-  group        <- rep(NA, length((group_levels)))
-  SE           <- rep(NA, length((group_levels)))
-  SE_rates     <- cbind(group, SE)
-  a            <- 1
   grouped_data <- dplyr::group_by_at(data, c(grouping, "psu"))
   grouped_data <- dplyr::summarize(grouped_data)
   p            <- dplyr::progress_estimated(nrow(grouped_data))
 
-  #### update
-  for (group in group_levels) {
-    sub_sample <- data[which(data[[grouping]] == group),]
-    #Generate Vector
-    psu <- sub_sample$psu
-    jack <- rep(NA, length(unique(psu)))
 
-    #Find unique PSUs and create replications
-    j <- 1
-    for (i in unique(psu)) {
-      sub_sample_delete_i <-  sub_sample[which(!sub_sample$psu == i),]
-      p$tick()
-      p$print()
+  jack <- suppressWarnings(
+    purrr::map_dfr(
+      group_levels,
+      function(g) {
+        sub_sample <- dplyr::filter_at(cdpw, grouping, dplyr::all_vars(. == g))
+        #Generate Vector
+        psu <- unique(sub_sample$psu)
 
-      # Iterate over age segments
-      cdpw_sample <- compute_for_all_age_segments(sub_sample_delete_i, age_segments)
+        out <- purrr::map_dfr(
+          psu,
+          function(i) {
+            sub_sample_delete_i <- sub_sample[which(!sub_sample$psu == i),]
+            p$tick()
+            p$print()
+            calculate_component_survival_probabilities(
+              sub_sample_delete_i,
+              grouping
+            )
+          }
+        )
+        dplyr::mutate(
+          out,
+          r = mean(mortality_rate),
+          k = nrow(out)
+        )
+      }
+    )
+  )
 
-      # Put all individual CDP values into dataframe
 
-      # Estimates based on rate type
-      if(rate_type == "neonatal") {
-        cdpw <- data.frame(cdpw=cdpw_sample$cdpw_sample[1:1])
-      } else if (rate_type == "postneonatal") {
-        cdpw <- data.frame(cdpw=cdpw_sample$cdpw_sample[2:4])
-      } else if (rate_type == "infant") {
-        cdpw <- data.frame(cdpw=cdpw_sample$cdpw_sample[1:4])
-      } else if (rate_type == "child") {
-        cdpw <- data.frame(cdpw=cdpw_sample$cdpw_sample[5:8])
-      } else cdpw <- data.frame(cdpw=cdpw_sample$cdpw_sample)
+  #Jack Knife Calculation using formula found in DHS final reports
 
+  #Set values
+  jack <- dplyr::mutate(
+    jack,
+    r_i = (k * r) - (k - 1) * mortality_rate,
+    r_i_r = (r_i - r)^2
+  )
+  jack <- dplyr::group_by_at(jack, grouping)
+  #Perform jack knife calculations
+  SE_rates <- dplyr::summarise(
+    jack,
+    diff_sums = sum(r_i_r),
+    SE = sqrt((1 / (k[1] * (k[1] - 1)) * diff_sums))
+  )
+  SE_rates <- dplyr::select_at(SE_rates, c(grouping, "SE"))
 
-      mortality_type_rate <- calculate_component_survival_probabilities(cdpw)
-      if(is.na(mortality_type_rate)) browser()
-      jack[j] <- mortality_type_rate
-      j <- j + 1
-
-    }
-
-    #Jack Knife Calculation using formula found in DHS final reports
-
-    #Set values
-    r <- mean(jack)
-    k <- length(jack)
-
-    #Import vector as data frame
-    jack_frame <- data.frame('r_replication'=jack)
-    jack_frame$r_i <- (k*r)-(k-1)*(jack_frame$r_replication)
-
-    #Perform jack knife calculations
-    jack_frame$ri_r <- (jack_frame$r_i-r)^2
-    diff_sums <- jack_frame$ri_r
-    diff_sums2 <- sum(diff_sums)
-    SE <- sqrt ((1/(k*(k-1))*diff_sums2))
-
-    SE_rates[a,1] <- group
-    SE_rates[a,2] <- SE
-    a <- a + 1
-
-  }
 
   #################################################################################################################
 
-
   #Merge U5 Mortality Rate with the U5 Standard Errors
+  attr(mortality_rates[[grouping]], "label") <- NULL
+  attr(mortality_rates[[grouping]], "var_desc") <- NULL
+  disaggregate_mortality <- dplyr::left_join(mortality_rates, SE_rates, by = grouping)
 
-  disaggregate_mortality <- merge(mortality_rates, SE_rates, by="group", all=TRUE)
 
+  # disaggregate_mortality <- plyr::rename(disaggregate_mortality, c("group" = grouping))
+  disaggregate_mortality <- dplyr::mutate(
+    disaggregate_mortality,
+    lower_confidence_interval = mortality_rate - 2 * SE,
+    upper_confidence_interval = mortality_rate + 2 * SE
+  )
 
-  disaggregate_mortality <- plyr::rename(disaggregate_mortality, c("group" = grouping))
-  disaggregate_mortality$lower_confidence_interval <- disaggregate_mortality$rate-2*disaggregate_mortality$SE
-  disaggregate_mortality$upper_confidence_interval <- disaggregate_mortality$rate+2*disaggregate_mortality$SE
-
-  if(rate_type == "neonatal") {
-    disaggregate_mortality <- plyr::rename(disaggregate_mortality, c(rate = "neonatal"))
-  } else if (rate_type == "postneonatal") {
-    disaggregate_mortality <- plyr::rename(disaggregate_mortality, c(rate = "postneonatal"))
-  } else if (rate_type == "infant") {
-    disaggregate_mortality <- plyr::rename(disaggregate_mortality, c(rate = "infant"))
-  } else if (rate_type == "child") {
-    disaggregate_mortality <- plyr::rename(disaggregate_mortality, c(rate = "child"))
-  }
-  else disaggregate_mortality <- plyr::rename(disaggregate_mortality, c(rate = "underfive"))
+  disaggregate_mortality <- dplyr::rename_at(
+    disaggregate_mortality,
+    "mortality_rate",
+    ~ rate_type
+  )
 
   return(disaggregate_mortality)
+
 }
 
