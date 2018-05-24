@@ -6,7 +6,7 @@ output:
 rmarkdown::html_vignette:
   toc: true
 vignette: >
-  %\VignetteIndexEntry{Vignette Title}
+  %\VignetteIndexEntry{Childhood Mortality}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
   %\usepackage[utf8]{inputenc}
@@ -48,7 +48,7 @@ The three required arguments for the primary function \texttt{childhoodmortality
 
 - __data__: the data frame containing the IPUMS-DHS microdata (or DHS data with column names renamed to match IPUMS-DHS). Six variables, available in all IPUMS-DHS datasets, are necessary to compute child mortality:
 
-    * `KIDDOCCMC`, reporting the date of birth of the child in century month code
+    * `KIDDOBCMC`, reporting the date of birth of the child in century month code
 
     * `KIDAGEDIEDIMP`, reporting the age of the child at death in months
 
@@ -79,7 +79,26 @@ The three required arguments for the primary function \texttt{childhoodmortality
 
 ### Input Data
 
-The variable names must match the variable names in IPUMS-DHS. If data is obtained directly from the DHS program, column names must be renamed to match IPUMS-DHS. Head of example input data: 
+The variable names must match the variable names in IPUMS-DHS. If data is obtained directly from the DHS program, column names must be renamed to match IPUMS-DHS. 
+
+The easiest way to import IPUMS-DHS data into R is the [ipumsr package](https://cran.r-project.org/web/packages/ipumsr/vignettes/ipums.html).
+
+Download a .csv or .dat extract from IPUMS-DHS, and on the extract page right click and use the "save link as" option to save the the DDI to the same directory as teh data file. 
+
+```{r, eval = FALSE}
+library(ipumsr)
+ng2013 <- read_ipums_micro(data_file = "idhs_00019.csv", ddi = "idhs_00019.xml")
+```
+
+Alternatively, the package can be used with a birth file obtained directly from the DHS program.
+
+```{r, eval = FALSE}
+library(haven)
+ng2013 <- read_dta("NGBR6AFL.DTA")
+```
+
+
+Head of example input data: 
 
 | YEAR| WEALTHQ| PSU| PERWEIGHT| KIDDOBCMC| INTDATECMC| KIDAGEDIEDIMP|
 |----:|-------:|---:|---------:|---------:|----------:|-------------:|
