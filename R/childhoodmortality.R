@@ -25,7 +25,7 @@
 #' )
 #'
 #' @export
-childhoodmortality <- function(data, grouping = "year", rate_type="underfive", period = 5) {
+childhoodmortality <- function(data, grouping = "sample", rate_type="underfive", period = 5) {
 
   . <- "null"
 
@@ -37,26 +37,30 @@ childhoodmortality <- function(data, grouping = "year", rate_type="underfive", p
 
   if (!rate_type %in% c("neonatal", "postneonatal", "infant", "child", "underfive")) stop("Please specify a valid mortality rate type. Valid options are neonatal, postneonatal, infant, child, underfive")
 
+
+
+
+  # Check if inout data comes from IPUMS-DHS or DHS
+  if ("kiddobcmc" %in% colnames(data)) {
+    data <- dplyr::select(data, grouping , psu, perweight, kiddobcmc, intdatecmc, kidagediedimp)}
+  else {data <- data %>%
+    dplyr::rename( sample = v000) %>%
+    dplyr::select(grouping, psu = v021, perweight = v005, kiddobcmc = b3, intdatecmc = v008, kidagediedimp = b7)}
+
   if (haven::is.labelled(data[[grouping]])) {
     cat(paste0("Variable ", grouping, " will be converted from class labelled to factor to preserve labels.\n"))
     data <- dplyr::mutate_at(data, grouping, ~ haven::as_factor(., levels = "both"))
   }
 
+
   #generate master table
   group_levels <- unique(data[[grouping]])
   group        <- rep(NA, length((group_levels)))
   rate         <- rep(NA, length((group_levels)))
-
-  mortality_rates <- cbind(group, rate)
-
-  # Check if inout data comes from IPUMS-DHS or DHS
-  if ("kiddobcmc" %in% colnames(data)) {
-    data <- dplyr::select(data, year, grouping , psu, perweight, kiddobcmc, intdatecmc, kidagediedimp)}
-  else {data <- dplyr::select(data, year = year, grouping , psu = v021, perweight = v005, kiddobcmc = b3, intdatecmc = v008, kidagediedimp = b7)}
-
-
   data <- dplyr::mutate(data, period = period * 12)
   class(data) <- "data.frame"
+
+  mortality_rates <- cbind(group, rate)
 
   age_segments <- list(c(0, 0),
                        c(1, 2),
@@ -82,7 +86,7 @@ childhoodmortality <- function(data, grouping = "year", rate_type="underfive", p
     age_segments,
     ~ compute_coweights(data, .[1], .[2])
   )
-  data <- dplyr::left_join(data, coweights, by = "unique_id")
+  data <- suppressWarnings(dplyr::left_join(data, coweights, by = "unique_id", ))
   # data <- tidyr::nest(data, age_segment, coweight, coweight2, numerator, denominator, .key = "coweights")
   cdpw_all <- compute_for_all_age_segments(data, grouping)
   cdpw <- dplyr::filter_at(cdpw_all, rate_type, dplyr::all_vars(.))
@@ -158,7 +162,7 @@ childhoodmortality <- function(data, grouping = "year", rate_type="underfive", p
   #Merge U5 Mortality Rate with the U5 Standard Errors
   attr(mortality_rates[[grouping]], "label") <- NULL
   attr(mortality_rates[[grouping]], "var_desc") <- NULL
-  disaggregate_mortality <- dplyr::left_join(mortality_rates, SE_rates, by = grouping)
+  disaggregate_mortality <- suppressWarnings(dplyr::left_join(mortality_rates, SE_rates, by = grouping))
 
 
   # disaggregate_mortality <- plyr::rename(disaggregate_mortality, c("group" = grouping))
