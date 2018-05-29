@@ -7,6 +7,7 @@
 
 calculate_component_survival_probabilities <- function(df, grouping) {
   #Calculate component death probabilities
+  . <- "quiet"
   df <- dplyr::summarise(
     df,
     cdpw = sum(cdpw_num) / sum(cdpw_denom)
@@ -23,7 +24,7 @@ calculate_component_survival_probabilities <- function(df, grouping) {
 
 
 compute_for_all_age_segments <- function(df, grouping) {
-
+  . <- "quiet"
   df <- dplyr::group_by_at(df, c(grouping, "age_segment", "psu"))
   out <- dplyr::summarise(
     df,
@@ -44,6 +45,7 @@ compute_for_all_age_segments <- function(df, grouping) {
 
 compute_coweights <- function(df, lower_age_segment, upper_age_segment) {
   #Set lower and upper limits of age interval
+  . <- "quiet"
   df$al <- lower_age_segment
   df$au <- upper_age_segment
 

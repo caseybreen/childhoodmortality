@@ -6,7 +6,7 @@
 #' @format A data frame with 8348 rows and 9 variables:
 #' \describe{
 #'   \item{KIDDOBCMC}{KIDDOBCMC (B3) reports the century month code for the date of birth of the child.}
-#'   \item{YEAR}{YEAR reports the year when the survey was fielded}
+#'   \item{SAMPLE}{SAMPLE reports the Sample}
 #'   \item{PSU}{PSU (V021) is the variable indicating the primary sampling unit or PSU}
 #'   \item{PERWEIGHT}{PERWEIGHT (V005) is a weighting factor to produce representative estimates}
 #'   \item{KIDAGEDIEDIMP}{KIDAGEDIEDIMP (B7) reports the age of the child at death in months (including imputed ages)}

@@ -54,15 +54,11 @@ The three required arguments for the primary function \texttt{childhoodmortality
 
     * `INTDATECMC`, reporting interview date in century month code
 
-    * `YEAR`, reporting the year the survey was fielded
-
     * `PSU`, reporting the primary sampling unit
   
     * `PERWEIGHT`, reporting the individual weights assigned to each woman in the survey
 
-
 - __grouping__: a categorical variable in data which the mortality rates will be disaggregated (e.g. IPUMS-DHS integrated geography variables, wealth quintile, race/ethnicity variables, etc.)
-
     
 - __rate_type__: the type of mortality rate to be computed: 
 
@@ -79,24 +75,21 @@ The three required arguments for the primary function \texttt{childhoodmortality
 
 ### Input Data
 
-The variable names must match the variable names in IPUMS-DHS. If data is obtained directly from the DHS program, column names must be renamed to match IPUMS-DHS. 
+The childhoodmortality package computes mortality rates from IPUMS-DHS data or da birth recode file from the DHS program. 
+
+
+#### IPUMS-DHS
+
+If data is obtained from IPUMS-DHS, the unit of analysis must be "Births." The following variables need to be included in the extract: `KIDDOBCMC`, `KIDAGEDIEDIMP`, `INTDATECMC`, `PSU`, `PERWEIGHT` 
 
 The easiest way to import IPUMS-DHS data into R is the [ipumsr package](https://cran.r-project.org/web/packages/ipumsr/vignettes/ipums.html).
 
-Download a .csv or .dat extract from IPUMS-DHS, and on the extract page right click and use the "save link as" option to save the the DDI to the same directory as teh data file. 
+Download a .csv or .dat extract from IPUMS-DHS, and on the extract page right click and use the "save link as" option to save the DDI to the same directory as the data file. 
 
 ```{r, eval = FALSE}
 library(ipumsr)
 ng2013 <- read_ipums_micro(data_file = "idhs_00019.csv", ddi = "idhs_00019.xml")
 ```
-
-Alternatively, the package can be used with a birth file obtained directly from the DHS program.
-
-```{r, eval = FALSE}
-library(haven)
-ng2013 <- read_dta("NGBR6AFL.DTA")
-```
-
 
 Head of example input data: 
 
@@ -109,12 +102,21 @@ Head of example input data:
 | 2015|       1|  82|  0.875351|      1385|       1386|            NA|
 | 2015|       2| 159|  0.940895|      1337|       1388|            NA|
 
+#### DHS
 
-This dataframe includes the 6 variables necessary for computing childhoodmortality rates and includes the grouping variable `CHILDHOODMORTALITY`. The package only needs to be installed once, but it must be reloaded every time a new session is started. 
+The package can be used with a DHS BR recode Stata file. 
+
+```{r, eval = FALSE}
+library(haven)
+ng2013 <- read_dta("NGBR6AFL.DTA")
+```
+
 
 ### Installing the childhoodmortality package
 
 The childhoodmortality package in on the Comprehensive R Archive Network (CRAN). This makes installation straightforward:   
+
+The package only needs to be installed once, but it must be reloaded every time a new session is started. 
   
     
 ```{r, eval = FALSE}

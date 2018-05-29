@@ -4,7 +4,7 @@
 \alias{childhoodmortality}
 \title{Calculates childhood mortality}
 \usage{
-childhoodmortality(data, grouping = "year", rate_type = "underfive",
+childhoodmortality(data, grouping = "sample", rate_type = "underfive",
   period = 5)
 }
 \arguments{
