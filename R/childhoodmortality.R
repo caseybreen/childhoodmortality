@@ -89,8 +89,8 @@ childhoodmortality <- function(data, grouping = "sample", rate_type="underfive",
   data <- suppressWarnings(dplyr::left_join(data, coweights, by = "unique_id", ))
   # data <- tidyr::nest(data, age_segment, coweight, coweight2, numerator, denominator, .key = "coweights")
   cdpw_all <- compute_for_all_age_segments(data, grouping)
-  cdpw <- dplyr::filter_at(cdpw_all, rate_type, dplyr::all_vars(.))
-  cdpw <- dplyr::group_by_at(cdpw, c(grouping, "age_segment"))
+  cdpw <- tidyr::unnest(cdpw_all, rate_type)
+  cdpw <- dplyr::group_by_at(cdpw, c(grouping, "age_segment", "rate_type"))
   mortality_rates <- calculate_component_survival_probabilities(cdpw, grouping)
 
   ###############################################################
@@ -129,6 +129,7 @@ childhoodmortality <- function(data, grouping = "sample", rate_type="underfive",
             )
           }
         )
+        out <- dplyr::group_by(out, rate_type)
         dplyr::mutate(
           out,
           r = mean(mortality_rate),
@@ -147,7 +148,7 @@ childhoodmortality <- function(data, grouping = "sample", rate_type="underfive",
     r_i = (k * r) - (k - 1) * mortality_rate,
     r_i_r = (r_i - r)^2
   )
-  jack <- dplyr::group_by_at(jack, grouping)
+  jack <- dplyr::group_by_at(jack, c(grouping, "rate_type"))
   #Perform jack knife calculations
   SE_rates <- dplyr::summarise(
     jack,

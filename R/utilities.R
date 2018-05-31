@@ -15,7 +15,7 @@ calculate_component_survival_probabilities <- function(df, grouping) {
 
   #Calculate component survival probabilities
   df <- dplyr::mutate(df, csp = 1 - cdpw)
-  df <- dplyr::group_by_at(df, grouping)
+  df <- dplyr::group_by_at(df, c(grouping, "rate_type"))
   dplyr::summarise(
     df,
     mortality_rate = abs(prod(csp) - 1) * 1000
@@ -33,14 +33,15 @@ compute_for_all_age_segments <- function(df, grouping) {
     cdp_num = sum(coweight_num[numerator], na.rm = TRUE),
     cdp_denom = sum(coweight_den[denominator], na.rm = TRUE)
   )
-  dplyr::mutate(
-    out,
-    neonatal = age_segment == "0-0",
-    postneonatal = age_segment %in% c("1-2", "3-5", "6-11"),
-    infant = age_segment %in% c("0-0", "1-2", "3-5", "6-11"),
-    child = age_segment %in% c("12-23", "24-35", "36-47", "48-59"),
-    underfive = TRUE
-  )
+  rate_type_key <- list(`0-0` = c("neonatal", "infant", "underfive"),
+                        `1-2` = c("postneonatal", "infant", "underfive"),
+                        `3-5` = c("postneonatal", "infant", "underfive"),
+                        `6-11` = c("postneonatal", "infant", "underfive"),
+                        `12-23` = c("child", "underfive"),
+                        `24-35` = c("child", "underfive"),
+                        `36-47` = c("child", "underfive"),
+                        `48-59` = c("child", "underfive"))
+  dplyr::mutate(out, rate_type = rate_type_key[age_segment])
 }
 
 compute_coweights <- function(df, lower_age_segment, upper_age_segment) {
