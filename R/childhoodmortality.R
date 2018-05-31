@@ -43,12 +43,12 @@ childhoodmortality <- function(data, grouping = "sample", rate_type="underfive",
   # Check if inout data comes from IPUMS-DHS or DHS
   if ("kiddobcmc" %in% colnames(data)) {
     data <- dplyr::select(data, grouping , psu, perweight, kiddobcmc, intdatecmc, kidagediedimp)}
-  else {data <- data %>%
-    dplyr::rename( sample = v000) %>%
-    dplyr::select(grouping, psu = v021, perweight = v005, kiddobcmc = b3, intdatecmc = v008, kidagediedimp = b7)}
+  else {
+    data <- dplyr::rename(data, sample = v000)
+    data <- dplyr::select(data, grouping, psu = v021, perweight = v005, kiddobcmc = b3, intdatecmc = v008, kidagediedimp = b7)}
 
   if (haven::is.labelled(data[[grouping]])) {
-    cat(paste0("Variable ", grouping, " will be converted from class labelled to factor to preserve labels.\n"))
+    #cat(paste0("Variable ", grouping, " will be converted from class labelled to factor to preserve labels.\n"))
     data <- dplyr::mutate_at(data, grouping, ~ haven::as_factor(., levels = "both"))
   }
 
@@ -133,7 +133,7 @@ childhoodmortality <- function(data, grouping = "sample", rate_type="underfive",
         dplyr::mutate(
           out,
           r = mean(mortality_rate),
-          k = nrow(out)
+          k = n()
         )
       }
     )
@@ -141,6 +141,7 @@ childhoodmortality <- function(data, grouping = "sample", rate_type="underfive",
 
 
   #Jack Knife Calculation using formula found in DHS final reports
+
 
   #Set values
   jack <- dplyr::mutate(
@@ -155,7 +156,7 @@ childhoodmortality <- function(data, grouping = "sample", rate_type="underfive",
     diff_sums = sum(r_i_r),
     SE = sqrt((1 / (k[1] * (k[1] - 1)) * diff_sums))
   )
-  SE_rates <- dplyr::select_at(SE_rates, c(grouping, "SE"))
+  SE_rates <- dplyr::select_at(SE_rates, c(grouping, "SE", "rate_type"))
 
 
   #################################################################################################################
@@ -163,7 +164,7 @@ childhoodmortality <- function(data, grouping = "sample", rate_type="underfive",
   #Merge U5 Mortality Rate with the U5 Standard Errors
   attr(mortality_rates[[grouping]], "label") <- NULL
   attr(mortality_rates[[grouping]], "var_desc") <- NULL
-  disaggregate_mortality <- suppressWarnings(dplyr::left_join(mortality_rates, SE_rates, by = grouping))
+  disaggregate_mortality <- suppressWarnings(dplyr::left_join(mortality_rates, SE_rates, by = c(grouping, "rate_type")))
 
 
   # disaggregate_mortality <- plyr::rename(disaggregate_mortality, c("group" = grouping))
@@ -173,11 +174,12 @@ childhoodmortality <- function(data, grouping = "sample", rate_type="underfive",
     upper_confidence_interval = mortality_rate + 2 * SE
   )
 
-  disaggregate_mortality <- dplyr::rename_at(
-    disaggregate_mortality,
-    "mortality_rate",
-    ~ rate_type
-  )
+  rate_type_filter <- rate_type
+  if (rate_type != "all") {
+    disaggregate_mortality <- dplyr::filter(disaggregate_mortality, rate_type == rate_type_filter)
+  }
+
+  disaggregate_mortality <- dplyr::arrange(disaggregate_mortality, factor(rate_type, levels = c("neonatal", "postneonatal", "infant", "child", "underfive")))
 
   return(as.data.frame(disaggregate_mortality))
 
