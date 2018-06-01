@@ -1,0 +1,34 @@
+---
+title: "Package Vignette (replicating DHS Estimates)"
+author: "Casey Breen"
+date: "`r Sys.Date()`"
+output:
+rmarkdown::html_vignette:
+  toc: true
+vignette: >
+  %\VignetteIndexEntry{Replicating DHS Estimates}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+  %\usepackage[utf8]{inputenc}
+
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+### Replicating DHS Childhood Mortality Estimates
+
+This vignette will provide step-by-step instructions to replicate the estimates provided by the DHS Final Reports. In this Vignette, we'll replicate the estimates reported in the Nigeria 2013 Final Report.
+
+
+### Importing Data
+
+Data can be obtained from IPUMS-DHS or directly from the DHS Program. The easiest way to read IPUMS data into R is through the IPUMSR package [IPUMSR Package](https://dhsprogram.com/pubs/pdf/DHSG1/Guide_to_DHS_Statistics_29Oct2012_DHSG1.pdf)
+
+
+
+

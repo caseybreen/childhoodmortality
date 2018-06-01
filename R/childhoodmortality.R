@@ -185,3 +185,4 @@ childhoodmortality <- function(data, grouping = "sample", rate_type="underfive",
 
 }
 
+globalVariables(".")

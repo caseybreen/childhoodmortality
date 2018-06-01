@@ -4,6 +4,7 @@
 # 10/20/2017
 #######################################################
 
+globalVariables(".")
 
 calculate_component_survival_probabilities <- function(df, grouping) {
   #Calculate component death probabilities
