@@ -27,8 +27,95 @@ This vignette will provide step-by-step instructions to replicate the estimates 
 
 ### Importing Data
 
-Data can be obtained from IPUMS-DHS or directly from the DHS Program. The easiest way to read IPUMS data into R is through the IPUMSR package [IPUMSR Package](https://dhsprogram.com/pubs/pdf/DHSG1/Guide_to_DHS_Statistics_29Oct2012_DHSG1.pdf)
+Data can be obtained from IPUMS-DHS or directly from the DHS Program. 
+
+#### Import data from IPUMS-DHS
+
+If data is obtained from IPUMS-DHS:
+
+- Select "Births" unit of analysis.
+- Select following variables in the extract: `KIDDOBCMC`, `KIDAGEDIEDIMP`, `INTDATECMC`, `PSU`, `PERWEIGHT`, `WEALTHQ`, `EDUCLVL`, `GEONG2013`, `URBAN`
+- Create and download a .csv or .dat extract from IPUMS-DHS
+- On the extract page right click and use the "save link as" option to save the DDI to the same directory as the data file.
+- The easiest way to import IPUMS-DHS data into R is the [ipumsr package](https://cran.r-project.org/web/packages/ipumsr/vignettes/ipums.html).
+
+
+```{r, eval = FALSE}
+library(ipumsr)
+ng2013 <- read_ipums_micro(data_file = "idhs_00019.csv", ddi = "idhs_00019.xml")
+```
+
+
+#### Import data from DHS Program
+
+If data is obtained from the [DHS Program](https://dhsprogram.com/Data/):
+
+- Download a DHS BR recode Stata file.
+- Install [Haven Package](https://cran.r-project.org/web/packages/haven/index.html)
+
+```{r, eval = FALSE}
+library(haven)
+ng2013 <- read_dta("NGBR6AFL.DTA")
+```
 
 
 
+
+### Replicating Tables
+
+This table displays estimates of neonatal, post-neonatal, infant, child, under-five mortality rates and standard erros. 
+
+![](/pkg/ipums/personal/casey/r/childhoodmortality/vignettes/final_report_table_1.png)
+
+To replicate these tables, we'll just have to call the childhoodmortality function. The package defaults to computing mortality rates and standard errors for all rate types: 
+
+```{r, eval = FALSE}
+library(childhoodmortality)
+childhoodmortality(ng2013)
+```
+
+|sample              |rate_type    | mortality_rate|       SE| lower_confidence_interval| upper_confidence_interval|
+|:-------------------|:------------|--------------:|--------:|-------------------------:|-------------------------:|
+|[5665] Nigeria 2013 |neonatal     |       37.28012| 1.483270|                  34.31358|                  40.24666|
+|[5665] Nigeria 2013 |postneonatal |       32.48209| 1.472823|                  29.53644|                  35.42774|
+|[5665] Nigeria 2013 |infant       |       68.55127| 2.133319|                  64.28463|                  72.81791|
+|[5665] Nigeria 2013 |child        |       63.88013| 2.676241|                  58.52765|                  69.23261|
+|[5665] Nigeria 2013 |underfive    |      128.05234| 3.688539|                 120.67526|                 135.42942|
+
+
+The next table displays mortality rates for several subpopulations.
+
+<center>
+
+![](/pkg/ipums/personal/casey/r/childhoodmortality/vignettes/final_report_table_2.png)
+</center>
+
+
+
+To calculate subnational estimates, we need a variable to "disaggregate" over - a categorical variable in data which the mortality rates will be disaggregated (e.g. IPUMS-DHS integrated geography variables, wealth quintile, education variables, etc.) 
+
+Two important notes: 
+
+- This table uses the 10-year period preceding the survey by demographic characteristics. We will have to adjust the "period" argument of the function. 
+- Postneonatal is computed as the difference between infant and neonatal mortality rates.                         
+
+
+```{r, eval = FALSE}
+
+library(childhoodmortality)
+rates_by_education <- childhoodmortality(ng2013, grouping = "educlvl", period = 10)
+
+rates_by_education %>% 
+  select(educlvl, rate_type, mortality_rate) %>%
+  spread(rate_type, mortality_rate) %>%
+  mutate(postneonatal = infant - neonatal) %>%
+  mutate_if(is.numeric, funs(round(., 0)))
+```
+
+|educlvl          | child| infant| neonatal| postneonatal| underfive|
+|:----------------|-----:|------:|--------:|------------:|---------:|
+|[0] No education |   100|     89|       44|           47|       180|
+|[1] Primary      |    57|     74|       42|           34|       128|
+|[2] Secondary    |    35|     58|       34|           25|        91|
+|[3] Higher       |    13|     50|       30|           21|        62|
 

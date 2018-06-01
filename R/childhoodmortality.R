@@ -20,9 +20,9 @@
 #' data("model_ipums_dhs_dataset")
 #' underfive_mortality_rates <- childhoodmortality(
 #'  model_ipums_dhs_dataset,
-#'  grouping ="wealthq",
-#'  rate_type = "underfive"
+#'  grouping ="wealthq"
 #' )
+#'
 #'
 #' @export
 childhoodmortality <- function(data, grouping = "sample", rate_type="underfive", period = 5) {
