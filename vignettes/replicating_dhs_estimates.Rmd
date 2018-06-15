@@ -33,11 +33,12 @@ Data can be obtained from IPUMS-DHS or directly from the DHS Program.
 
 If data is obtained from IPUMS-DHS:
 
-- Select "Births" unit of analysis.
-- Select following variables in the extract: `KIDDOBCMC`, `KIDAGEDIEDIMP`, `INTDATECMC`, `PSU`, `PERWEIGHT`, `WEALTHQ`, `EDUCLVL`, `GEONG2013`, `URBAN`
-- Create and download a .csv or .dat extract from IPUMS-DHS
-- On the extract page right click and use the "save link as" option to save the DDI to the same directory as the data file.
-- The easiest way to import IPUMS-DHS data into R is the [ipumsr package](https://cran.r-project.org/web/packages/ipumsr/vignettes/ipums.html).
+* Select "Births" unit of analysis.
+* Select following variables in the extract: `KIDDOBCMC`, `KIDAGEDIEDIMP`, `INTDATECMC`, `PSU`, `PERWEIGHT`, `WEALTHQ`, `EDUCLVL`, `GEONG2013`, `URBAN`
+* The easiest way to import IPUMS-DHS data into R is the [ipumsr package](https://cran.r-project.org/web/packages/ipumsr/vignettes/ipums.html).
+    - Create and download a .csv or .dat extract from IPUMS-DHS
+    - On the extract page right click and use the "save link as" option to save the DDI to the same directory as the data file.
+
 
 
 ```{r, eval = FALSE}
@@ -51,7 +52,7 @@ ng2013 <- read_ipums_micro(data_file = "idhs_00019.csv", ddi = "idhs_00019.xml")
 If data is obtained from the [DHS Program](https://dhsprogram.com/Data/):
 
 - Download a DHS BR recode Stata file.
-- Install [Haven Package](https://cran.r-project.org/web/packages/haven/index.html)
+- Install the [Haven Package](https://cran.r-project.org/web/packages/haven/index.html)
 
 ```{r, eval = FALSE}
 library(haven)
@@ -101,7 +102,43 @@ Two important notes:
 
 
 ```{r, eval = FALSE}
+library(childhoodmortality)
+rates_by_residence <- childhoodmortality(ng2013, grouping = "urban", period = 10)
 
+rates_by_residence %>% 
+  select(urban
+         , rate_type, mortality_rate) %>%
+  spread(rate_type, mortality_rate) %>%
+  mutate(postneonatal = infant - neonatal) %>%
+  mutate_if(is.numeric, funs(round(., 0)))
+```
+
+|urban     | child| infant| neonatal| postneonatal| underfive|
+|:---------|-----:|------:|--------:|------------:|---------:|
+|[1] Urban |    42|     60|       34|           26|       100|
+|[2] Rural |    89|     86|       44|           42|       167|
+
+
+```{r, eval = FALSE}
+library(childhoodmortality)
+rates_by_region <- childhoodmortality(ng2013, grouping = "geo_ng2013", period = 10)
+
+rates_by_region %>% 
+  select(geo_ng2013, rate_type, mortality_rate) %>%
+  spread(rate_type, mortality_rate) %>%
+  mutate(postneonatal = infant - neonatal) %>%
+  mutate_if(is.numeric, funs(round(., 0)))
+```
+|geo_ng2013        | child| infant| neonatal| postneonatal| underfive|
+|:-----------------|-----:|------:|--------:|------------:|---------:|
+|[1] North Central |    36|     66|       35|           31|       100|
+|[2] North East    |    90|     77|       43|           33|       160|
+|[3] North West    |   105|     89|       44|           46|       185|
+|[4] South East    |    54|     82|       37|           45|       131|
+|[5] South South   |    35|     58|       32|           26|        91|
+|[6] South West    |    31|     61|       39|           21|        90|
+
+```{r, eval = FALSE}
 library(childhoodmortality)
 rates_by_education <- childhoodmortality(ng2013, grouping = "educlvl", period = 10)
 
@@ -118,4 +155,27 @@ rates_by_education %>%
 |[1] Primary      |    57|     74|       42|           34|       128|
 |[2] Secondary    |    35|     58|       34|           25|        91|
 |[3] Higher       |    13|     50|       30|           21|        62|
+
+
+
+```{r, eval = FALSE}
+library(childhoodmortality)
+rates_by_wealth <- childhoodmortality(ng2013, grouping = "educlvl", period = 10)
+
+rates_by_wealth %>% 
+  select(wealthq, rate_type, mortality_rate) %>%
+  spread(rate_type, mortality_rate) %>%
+  mutate(postneonatal = infant - neonatal) %>%
+  mutate_if(is.numeric, funs(round(., 0)))
+```
+
+|wealthq     | child| infant| neonatal| postneonatal| underfive|
+|:-----------|-----:|------:|--------:|------------:|---------:|
+|[1] Poorest |   108|     92|       45|           47|       190|
+|[2] Poorer  |   103|     94|       45|           49|       187|
+|[3] Middle  |    61|     71|       39|           31|       127|
+|[4] Richer  |    38|     65|       37|           28|       100|
+|[5] Richest |    26|     48|       30|           18|        73|
+
+
 

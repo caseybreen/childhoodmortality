@@ -167,7 +167,6 @@ childhoodmortality <- function(data, grouping = "sample", rate_type="underfive",
   disaggregate_mortality <- suppressWarnings(dplyr::left_join(mortality_rates, SE_rates, by = c(grouping, "rate_type")))
 
 
-  # disaggregate_mortality <- plyr::rename(disaggregate_mortality, c("group" = grouping))
   disaggregate_mortality <- dplyr::mutate(
     disaggregate_mortality,
     lower_confidence_interval = mortality_rate - 2 * SE,
