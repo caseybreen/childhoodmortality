@@ -66,7 +66,7 @@ ng2013 <- read_dta("NGBR6AFL.DTA")
 
 This table displays estimates of neonatal, post-neonatal, infant, child, under-five mortality rates and standard erros. 
 
-![](/pkg/ipums/personal/casey/r/childhoodmortality/vignettes/final_report_table_1.png)
+<!-- ![](/pkg/ipums/personal/casey/r/childhoodmortality/vignettes/final_report_table_1.png) -->
 
 To replicate these tables, we'll just have to call the childhoodmortality function. The package defaults to computing mortality rates and standard errors for all rate types: 
 
@@ -86,10 +86,10 @@ childhoodmortality(ng2013)
 
 The next table displays mortality rates for several subpopulations.
 
-<center>
+<!-- <center> -->
 
-![](/pkg/ipums/personal/casey/r/childhoodmortality/vignettes/final_report_table_2.png)
-</center>
+<!-- #![](/pkg/ipums/personal/casey/r/childhoodmortality/vignettes/final_report_table_2.png) -->
+<!-- </center> -->
 
 
 
